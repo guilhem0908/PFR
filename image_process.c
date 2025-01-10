@@ -8,14 +8,14 @@
 #include <stdlib.h>
 
 
-void extract_color_components(const int height, const int width, int** color_components, char* cursor_image_text) {
-    if (!color_components) {
-        perror("❌ Error allocating memory for color components.");
+void extract_RGB_components(const int height, const int width, int** RGB_components, char* cursor_image_text) {
+    if (!RGB_components) {
+        perror("❌ Error allocating memory for RGB components.");
         return;
     }
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            color_components[i][j] = strtol(cursor_image_text, &cursor_image_text, 10);
+            RGB_components[i][j] = strtol(cursor_image_text, &cursor_image_text, 10);
         }
     }
 }
@@ -77,9 +77,9 @@ ImageData extract_image_text_data(const char* path) {
         return NULL;
     }
 
-    extract_color_components(height, width, image_data->red_components, cursor_image_text);
-    extract_color_components(height, width, image_data->green_components, cursor_image_text);
-    extract_color_components(height, width, image_data->blue_components, cursor_image_text);
+    extract_RGB_components(height, width, image_data->red_components, cursor_image_text);
+    extract_RGB_components(height, width, image_data->green_components, cursor_image_text);
+    extract_RGB_components(height, width, image_data->blue_components, cursor_image_text);
 
     return image_data;
 }
