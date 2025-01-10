@@ -17,6 +17,16 @@ typedef struct {
 typedef ImageData_s* ImageData;
 
 /**
+ * @brief Extracts pixel data for a single color component from image text.
+ *
+ * @param height Number of rows (image height).
+ * @param width Number of columns (image width).
+ * @param color_components Pointer to the 2D array to store the color component values.
+ * @param cursor_image_text Pointer to the cursor pointing to the text data being parsed.
+ */
+void extract_color_components(int height, int width, int** color_components, char* cursor_image_text);
+
+/**
  * @brief Extracts image data (dimensions and RGB pixels) from a image text file.
  *
  * @param path File path of the image text file.

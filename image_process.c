@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 
-void parse_color_components(const int height, const int width, int** color_components, char* cursor_image_text) {
+void extract_color_components(const int height, const int width, int** color_components, char* cursor_image_text) {
     if (!color_components) {
         perror("❌ Error allocating memory for color components.");
         return;
@@ -77,9 +77,9 @@ ImageData extract_image_text_data(const char* path) {
         return NULL;
     }
 
-    parse_color_components(height, width, image_data->red_components, cursor_image_text);
-    parse_color_components(height, width, image_data->green_components, cursor_image_text);
-    parse_color_components(height, width, image_data->blue_components, cursor_image_text);
+    extract_color_components(height, width, image_data->red_components, cursor_image_text);
+    extract_color_components(height, width, image_data->green_components, cursor_image_text);
+    extract_color_components(height, width, image_data->blue_components, cursor_image_text);
 
     return image_data;
 }
