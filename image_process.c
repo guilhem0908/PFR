@@ -58,3 +58,17 @@ ImageData extract_image_text_data(const char* path) {
     }
     return image_data;
 }
+
+int quantize_pixel(const int R, const int G, const int B, const int n) {
+    if (n < 1 || n > 8) {
+        fprintf(stderr, "⚠️ Error: The parameter 'n' must be between 1 and 8 inclusive.\n");
+        return -1;
+    }
+
+    const int mask = (1 << n) - 1;
+    const int R_quantized = (R >> (8 - n)) & mask;
+    const int G_quantized = (G >> (8 - n)) & mask;
+    const int B_quantized = (B >> (8 - n)) & mask;
+
+    return (R_quantized << (2 * n)) | (G_quantized << n) | B_quantized;
+}
