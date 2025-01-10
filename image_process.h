@@ -38,6 +38,7 @@ ImageData extract_image_text_data(const char* path);
  * @return The quantized color value as an integer with each component in the lower `n` levels.
  *         The format is 0xRRGGBB, where each component is quantized.
  */
+
 int quantize_pixel(const int R, const int G, const int B, const int n);
 
 void quantize_image(ImageData image);
