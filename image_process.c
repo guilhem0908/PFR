@@ -66,6 +66,7 @@ int quantize_pixel(const int R, const int G, const int B, const int n) {
     }
 
     const int mask = (1 << n) - 1;
+
     const int R_quantized = (R >> (8 - n)) & mask;
     const int G_quantized = (G >> (8 - n)) & mask;
     const int B_quantized = (B >> (8 - n)) & mask;
