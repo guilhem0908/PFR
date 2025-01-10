@@ -33,7 +33,7 @@ ImageData extract_image_text_data(const char* path) {
         return NULL;
     }
 
-    ImageData_s* const image_data = malloc(sizeof(ImageData_s));
+    const ImageData image_data = malloc(sizeof(ImageData_s));
     if (!image_data) {
         perror("❌ Error allocating memory for image data.");
         return NULL;
@@ -99,9 +99,9 @@ int quantize_pixel(const int R, const int G, const int B, const int n) {
     return (R_quantized << (2 * n)) | (G_quantized << n) | B_quantized;
 }
 
-void quantize_image(ImageData image, int n) {
-    for (int i=0; i<image->width; i++){
-        for (int j=0; j<image->height; j++){
+void quantize_image(const ImageData image, const int n) {
+    for (int i=0; i < image->height; i++){
+        for (int j=0; j < image->width; j++){
             const int R = image->red_components[i][j];
             const int G = image->green_components[i][j];
             const int B = image->blue_components[i][j];
