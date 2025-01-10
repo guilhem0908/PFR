@@ -8,14 +8,14 @@
 #include <stdlib.h>
 
 
-void extract_RGB_components(const int height, const int width, int** RGB_components, char* cursor_image_text) {
-    if (!RGB_components) {
-        perror("❌ Error allocating memory for RGB components.");
+void extract_color_components(const int height, const int width, int** color_components, char* cursor_image_text) {
+    if (!color_components) {
+        perror("❌ Error allocating memory for color components.");
         return;
     }
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            RGB_components[i][j] = strtol(cursor_image_text, &cursor_image_text, 10);
+            color_components[i][j] = strtol(cursor_image_text, &cursor_image_text, 10);
         }
     }
 }
@@ -77,9 +77,9 @@ ImageData extract_image_text_data(const char* path) {
         return NULL;
     }
 
-    extract_RGB_components(height, width, image_data->red_components, cursor_image_text);
-    extract_RGB_components(height, width, image_data->green_components, cursor_image_text);
-    extract_RGB_components(height, width, image_data->blue_components, cursor_image_text);
+    extract_color_components(height, width, image_data->red_components, cursor_image_text);
+    extract_color_components(height, width, image_data->green_components, cursor_image_text);
+    extract_color_components(height, width, image_data->blue_components, cursor_image_text);
 
     return image_data;
 }
@@ -97,4 +97,16 @@ int quantize_pixel(const int R, const int G, const int B, const int n) {
     const int B_quantized = (B >> (8 - n)) & mask;
 
     return (R_quantized << (2 * n)) | (G_quantized << n) | B_quantized;
+}
+
+void quantize_image(ImageData image, int n) {
+    for (int i=0; i<image->width; i++){
+        for (int j=0; j<image->height; j++){
+            const int R = image->red_components[i][j];
+            const int G = image->green_components[i][j];
+            const int B = image->blue_components[i][j];
+            image->quantized_pixels[i][j] = quantize_pixel(R, G, B, n);
+        }
+    }
+
 }

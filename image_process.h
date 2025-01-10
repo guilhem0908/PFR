@@ -45,7 +45,21 @@ ImageData extract_image_text_data(const char* path);
  */
 int quantize_pixel(int R, int G, int B, int n);
 
-void quantize_image(ImageData image);
+/**
+ * @brief Quantizes the RGB values of all pixels in an image.
+ *
+ * This function iterates through each pixel in the image, quantizes its RGB
+ * components using the specified number of quantization levels (`n`),
+ * and stores the result in the `quantized_pixels` array.
+ *
+ * For each pixel, the red, green, and blue components are extracted,
+ * quantized using the `quantize_pixel` function, and the result is stored
+ * in the corresponding position in the `quantized_pixels` array.
+ *
+ * @param image Pointer to the `ImageData` structure containing the image data.
+ * @param n The number of quantization levels for each component (1 ≤ n ≤ 8).
+ */
+void quantize_image(ImageData image, int n);
 
 
 #endif //IMAGE_PROCESS_H
