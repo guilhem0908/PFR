@@ -8,6 +8,19 @@
 #include <stdlib.h>
 
 
+void parse_color_components(const int height, const int width, int** color_components, char* cursor_image_text) {
+    if (!color_components) {
+        perror("❌ Error allocating memory for color components.");
+        return;
+    }
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            color_components[i][j] = strtol(cursor_image_text, &cursor_image_text, 10);
+        }
+    }
+}
+
+
 ImageData extract_image_text_data(const char* path) {
     const char* image_text = read_file(path);
 
@@ -27,41 +40,54 @@ ImageData extract_image_text_data(const char* path) {
     }
     image_data->width = width;
     image_data->height = height;
-    image_data->red_pixels = malloc(height * sizeof(int*));
-    image_data->green_pixels = malloc(height * sizeof(int*));
-    image_data->blue_pixels = malloc(height * sizeof(int*));
-    if (!image_data->red_pixels || !image_data->green_pixels || !image_data->blue_pixels) {
+    image_data->red_components = malloc(height * sizeof(int*));
+    image_data->green_components = malloc(height * sizeof(int*));
+    image_data->blue_components = malloc(height * sizeof(int*));
+    if (!image_data->red_components || !image_data->green_components || !image_data->blue_components) {
         perror("❌ Error allocating memory for rows (height) in the image.");
-        free(image_data->red_pixels);
-        free(image_data->green_pixels);
-        free(image_data->blue_pixels);
+        free(image_data->red_components);
+        free(image_data->green_components);
+        free(image_data->blue_components);
         free(image_data);
         return NULL;
     }
     for (int i = 0; i < height; i++) {
-        image_data->red_pixels[i] = malloc(width * sizeof(int));
-        image_data->green_pixels[i] = malloc(width * sizeof(int));
-        image_data->blue_pixels[i] = malloc(width * sizeof(int));
-        if (!image_data->red_pixels[i] || !image_data->green_pixels[i] || !image_data->blue_pixels[i]) {
+        image_data->red_components[i] = malloc(width * sizeof(int));
+        image_data->green_components[i] = malloc(width * sizeof(int));
+        image_data->blue_components[i] = malloc(width * sizeof(int));
+        if (!image_data->red_components[i] || !image_data->green_components[i] || !image_data->blue_components[i]) {
             perror("❌ Error allocating memory for columns (width) in the image.");
             for (int j = 0; j <= i; j++) {
-                free(image_data->red_pixels[j]);
-                free(image_data->green_pixels[j]);
-                free(image_data->blue_pixels[j]);
+                free(image_data->red_components[j]);
+                free(image_data->green_components[j]);
+                free(image_data->blue_components[j]);
             }
-            free(image_data->red_pixels);
-            free(image_data->green_pixels);
-            free(image_data->blue_pixels);
+            free(image_data->red_components);
+            free(image_data->green_components);
+            free(image_data->blue_components);
             free(image_data);
             return NULL;
         }
     }
+
+    image_data->quantized_pixels = malloc(width * height * sizeof(int));
+    if (!image_data->quantized_pixels) {
+        perror("❌ Error allocating memory for quantized pixels.");
+        free(image_data->quantized_pixels);
+        return NULL;
+    }
+
+    parse_color_components(height, width, image_data->red_components, cursor_image_text);
+    parse_color_components(height, width, image_data->green_components, cursor_image_text);
+    parse_color_components(height, width, image_data->blue_components, cursor_image_text);
+
     return image_data;
 }
 
+
 int quantize_pixel(const int R, const int G, const int B, const int n) {
     if (n < 1 || n > 8) {
-        fprintf(stderr, "⚠️ Error: The parameter 'n' must be between 1 and 8 inclusive.\n");
+        fprintf(stderr, "⚠️ The parameter 'n' must be between 1 and 8 inclusive.\n");
         return -1;
     }
 

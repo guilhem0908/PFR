@@ -8,9 +8,9 @@
 typedef struct {
     int width;
     int height;
-    int** red_pixels;
-    int** green_pixels;
-    int** blue_pixels;
+    int** red_components;
+    int** green_components;
+    int** blue_components;
     int** quantized_pixels;
 } ImageData_s;
 
@@ -25,21 +25,15 @@ typedef ImageData_s* ImageData;
 ImageData extract_image_text_data(const char* path);
 
 /**
- * @brief Quantize a pixel's RGB values to a specified number of color levels.
+ * @brief Quantifies an RGB pixel by combining the n most significant bits of each color component (Red, Green, Blue).
  *
- * This function takes the RGB values of a pixel and reduces each component
- * (Red, Green, Blue) to a discrete set of values based on the given number of
- * levels. The quantization maps the color values to a set of `n` levels.
- *
- * @param R The red component of the pixel (0-255).
- * @param G The green component of the pixel (0-255).
- * @param B The blue component of the pixel (0-255).
- * @param n The number of color levels to quantize each component (typically a power of 2).
- * @return The quantized color value as an integer with each component in the lower `n` levels.
- *         The format is 0xRRGGBB, where each component is quantized.
+ * @param R Red component (integer between 0 and 255).
+ * @param G Green component (integer between 0 and 255).
+ * @param B Blue component (integer between 0 and 255).
+ * @param n Number of significant bits to use for each component (1 ≤ n ≤ 8).
+ * @return An integer ranging from 0 to 2^(3n) - 1, or -1 on error.
  */
-
-int quantize_pixel(const int R, const int G, const int B, const int n);
+int quantize_pixel(int R, int G, int B, int n);
 
 void quantize_image(ImageData image);
 
