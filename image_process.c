@@ -188,6 +188,7 @@ Cluster find_cluster(const ImageData image, const int thresholds[6]) {
                         cluster_yellow->binary_mask[i][j] = 1;
                         cluster_yellow->number_pixels++;
                     }
+
                 }
             }
         }
