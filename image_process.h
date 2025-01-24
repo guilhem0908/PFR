@@ -25,9 +25,10 @@ typedef struct {
     int number_pixels;
     int** binary_mask;
     Color color;
-} Cluster;
+} Cluster_s;
 
 typedef ImageData_s* ImageData;
+typedef Cluster_s* Cluster;
 
 /**
  * @brief Extracts pixel data for a single RGB component from image text.
