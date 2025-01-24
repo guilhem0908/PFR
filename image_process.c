@@ -103,11 +103,11 @@ int quantize_pixel(const int R, const int G, const int B, const int n) {
     }
 
     const int mask = (1 << n) - 1;
-    const int R_quantized = (R >> (8 - n)) & mask;
-    const int G_quantized = (G >> (8 - n)) & mask;
-    const int B_quantized = (B >> (8 - n)) & mask;
+    const int R_quantized = R >> 8 - n & mask;
+    const int G_quantized = G >> 8 - n & mask;
+    const int B_quantized = B >> 8 - n & mask;
 
-    return (R_quantized << (2 * n)) | (G_quantized << n) | B_quantized;
+    return R_quantized << 2 * n | G_quantized << n | B_quantized;
 }
 
 void quantize_image(const ImageData image, const int n) {
@@ -146,51 +146,58 @@ void get_thresholds(const Color color, int thresholds[6]) {
     }
 }
 
-Cluster find_cluster(const ImageData image, const int thresholds[6]) {
-    Cluster cluster_orange = malloc(sizeof(Cluster));
-    Cluster cluster_blue = malloc(sizeof(Cluster));
-    Cluster cluster_yellow = malloc(sizeof(Cluster));
+void find_clusters(const ImageData image, Cluster clusters[3]) {
+    int number_clusters = 0;
 
-    cluster_orange->number_pixels = 0;
-    cluster_orange->binary_mask = malloc(image->height * sizeof(int*));
-    cluster_blue->number_pixels = 0;
-    cluster_blue->binary_mask = malloc(image->height * sizeof(int*));
-    cluster_yellow->number_pixels = 0;
-    cluster_yellow->binary_mask = malloc(image->height * sizeof(int*));
-
-
-    for (int i = 0; i < image->height; i++) {
-        cluster_orange->binary_mask[i] = malloc(image->width * sizeof(int));
-        cluster_blue->binary_mask[i] = malloc(image->width * sizeof(int));
-        cluster_yellow->binary_mask[i] = malloc(image->width * sizeof(int));
-    }
-    for (int i = 0; i < image->height; i++) {
-        for (int j = 0; j < image->width; j++) {
-            cluster_orange->binary_mask[i][j] = 0;
-            cluster_blue->binary_mask[i][j] = 0;
-            cluster_yellow->binary_mask[i][j] = 0;
+    for (Color color = ORANGE; color <= YELLOW; color++) {
+        int thresholds[6];
+        int number_pixels = 0;
+        int **binary_mask = malloc(image->height * sizeof(int*));
+        get_thresholds(color, thresholds);
+        if (!binary_mask) {
+            perror("❌ Error allocating memory for rows (height) in the quantized pixels.");
+            free(binary_mask);
+            return;
         }
-    }
-    for (int i = 0; i < image->height; i++) {
-        for (int j = 0; j < image->width; j++) {
-            for (Color c = ORANGE; c <= YELLOW; c++) {
-                get_thresholds(c, thresholds);
+        for (int i = 0; i < image->height; i++) {
+            binary_mask[i] = malloc(image->height * sizeof(int));
+            if (!binary_mask[i]) {
+                perror("❌ Error allocating memory for columns (width) in the RGB components.");
+                for (int j = 0; j <= i; j++) {
+                    free(binary_mask[i]);
+                }
+                free(binary_mask);
+                return;
+            }
+        }
+        for (int i = 0; i < image->height; i++) {
+            for (int j = 0; j < image->width; j++) {
                 if (image->red_components[i][j] > thresholds[0] && image->red_components[i][j] < thresholds[1] &&
                     image->blue_components[i][j] > thresholds[2] && image->blue_components[i][j] < thresholds[3] &&
                     image->green_components[i][j] > thresholds[4] && image->green_components[i][j] < thresholds[5]) {
-                    if (c == ORANGE) {
-                        cluster_orange->binary_mask[i][j] = 1;
-                        cluster_orange->number_pixels++;
-                    } else if (c == BLUE) {
-                        cluster_blue->binary_mask[i][j] = 1;
-                        cluster_blue->number_pixels++;
-                    } else if (c == YELLOW) {
-                        cluster_yellow->binary_mask[i][j] = 1;
-                        cluster_yellow->number_pixels++;
-                    }
-
+                    binary_mask[i][j] = 1;
+                    number_pixels++;
                 }
             }
+        }
+        if (number_pixels >= 20 && number_pixels <= 50) {
+            const Cluster cluster = malloc(sizeof(Cluster_s));
+            if (!cluster) {
+                perror("❌ Error allocating memory for clusters.");
+                for (int i = 0; i < number_clusters; i++) {
+                    free(clusters[i]);
+                }
+                for (int i = 0; i <= image->height; i++) {
+                    free(binary_mask[i]);
+                }
+                free(binary_mask);
+                return;
+            }
+            cluster->number_pixels = number_pixels;
+            cluster->binary_mask = binary_mask;
+            cluster->color = color;
+            clusters[number_clusters] = cluster;
+            number_clusters++;
         }
     }
 }

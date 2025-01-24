@@ -76,6 +76,12 @@ void quantize_image(ImageData image, int n);
  */
 void get_thresholds(Color color, int thresholds[6]);
 
-
+/**
+ * @brief Identifies clusters of pixels in an image based on color thresholds.
+ *
+ * @param image Pointer to the `ImageData` structure containing the image data.
+ * @param clusters Array of `Cluster` structures to store the detected clusters (between 1 and 3).
+ */
+void find_clusters(const ImageData image, Cluster clusters[3]);
 
 #endif //IMAGE_PROCESS_H
