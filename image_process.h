@@ -11,6 +11,7 @@ typedef struct {
     int** red_components;
     int** green_components;
     int** blue_components;
+    int n;
     int** quantized_pixels;
 } ImageData_s;
 
@@ -73,6 +74,7 @@ void quantize_image(ImageData image, int n);
  *        thresholds[0-1] for red min/max, thresholds[2-3] for green min/max, and thresholds[4-5] for blue min/max.
  */
 void get_thresholds(Color color, int thresholds[6]);
+
 
 
 #endif //IMAGE_PROCESS_H

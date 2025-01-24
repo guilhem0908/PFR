@@ -3,8 +3,9 @@ project(PFR C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(PFR main.c
+add_executable(PFR
         file_operations.c
         file_operations.h
         image_process.c
-        image_process.h)
+        image_process.h
+)

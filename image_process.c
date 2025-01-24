@@ -111,6 +111,7 @@ int quantize_pixel(const int R, const int G, const int B, const int n) {
 }
 
 void quantize_image(const ImageData image, const int n) {
+    image->n = n;
     for (int i=0; i < image->height; i++){
         for (int j=0; j < image->width; j++){
             const int R = image->red_components[i][j];
@@ -119,8 +120,9 @@ void quantize_image(const ImageData image, const int n) {
             image->quantized_pixels[i][j] = quantize_pixel(R, G, B, n);
         }
     }
-
 }
+
+
 
 
 void get_thresholds(const Color color, int thresholds[6]) {
@@ -143,3 +145,52 @@ void get_thresholds(const Color color, int thresholds[6]) {
         default:;
     }
 }
+
+Cluster find_cluster(const ImageData image, const int thresholds[6]) {
+    Cluster* cluster_orange = malloc(sizeof(Cluster));
+    Cluster* cluster_blue = malloc(sizeof(Cluster));
+    Cluster* cluster_yellow = malloc(sizeof(Cluster));
+
+    cluster_orange->number_pixels = 0;
+    cluster_orange->binary_mask = malloc(image->height * sizeof(int*));
+    cluster_blue->number_pixels = 0;
+    cluster_blue->binary_mask = malloc(image->height * sizeof(int*));
+    cluster_yellow->number_pixels = 0;
+    cluster_yellow->binary_mask = malloc(image->height * sizeof(int*));
+
+
+    for (int i = 0; i < image->height; i++) {
+        cluster_orange->binary_mask[i] = malloc(image->width * sizeof(int));
+        cluster_blue->binary_mask[i] = malloc(image->width * sizeof(int));
+        cluster_yellow->binary_mask[i] = malloc(image->width * sizeof(int));
+    }
+    for (int i = 0; i < image->height; i++) {
+        for (int j = 0; j < image->width; j++) {
+            cluster_orange->binary_mask[i][j] = 0;
+            cluster_blue->binary_mask[i][j] = 0;
+            cluster_yellow->binary_mask[i][j] = 0;
+        }
+    }
+    for (int i = 0; i < image->height; i++) {
+        for (int j = 0; j < image->width; j++) {
+            for (Color c = ORANGE; c <= YELLOW; c++) {
+                get_thresholds(c, thresholds);
+                if (image->red_components[i][j] > thresholds[0] && image->red_components[i][j] < thresholds[1] &&
+                    image->blue_components[i][j] > thresholds[2] && image->blue_components[i][j] < thresholds[3] &&
+                    image->green_components[i][j] > thresholds[4] && image->green_components[i][j] < thresholds[5]) {
+                    if (c == ORANGE) {
+                        cluster_orange->binary_mask[i][j] = 1;
+                        cluster_orange->number_pixels++;
+                    } else if (c == BLUE) {
+                        cluster_blue->binary_mask[i][j] = 1;
+                        cluster_blue->number_pixels++;
+                    } else if (c == YELLOW) {
+                        cluster_yellow->binary_mask[i][j] = 1;
+                        cluster_yellow->number_pixels++;
+                    }
+                }
+            }
+        }
+    }
+}
+
