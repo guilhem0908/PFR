@@ -14,6 +14,18 @@ typedef struct {
     int** quantized_pixels;
 } ImageData_s;
 
+typedef enum {
+    ORANGE,
+    BLUE,
+    YELLOW,
+} Color;
+
+typedef struct {
+    int number_pixels;
+    int** binary_mask;
+    Color color;
+} Cluster;
+
 typedef ImageData_s* ImageData;
 
 /**
@@ -52,6 +64,15 @@ int quantize_pixel(int R, int G, int B, int n);
  * @param n The number of quantization levels for each component (1 ≤ n ≤ 8).
  */
 void quantize_image(ImageData image, int n);
+
+/**
+ * @brief Retrieves the threshold values for a specific color.
+ *
+ * @param color The target color (defined in the Color enum).
+ * @param thresholds Pointer to an array of 6 integers to store the thresholds:
+ *        thresholds[0-1] for red min/max, thresholds[2-3] for green min/max, and thresholds[4-5] for blue min/max.
+ */
+void get_thresholds(Color color, int thresholds[6]);
 
 
 #endif //IMAGE_PROCESS_H

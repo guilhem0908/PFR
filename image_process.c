@@ -44,7 +44,7 @@ ImageData extract_image_text_data(const char* path) {
     image_data->green_components = malloc(height * sizeof(int*));
     image_data->blue_components = malloc(height * sizeof(int*));
     if (!image_data->red_components || !image_data->green_components || !image_data->blue_components) {
-        perror("❌ Error allocating memory for rows (height) in the image.");
+        perror("❌ Error allocating memory for rows (height) in the RGB components.");
         free(image_data->red_components);
         free(image_data->green_components);
         free(image_data->blue_components);
@@ -56,7 +56,7 @@ ImageData extract_image_text_data(const char* path) {
         image_data->green_components[i] = malloc(width * sizeof(int));
         image_data->blue_components[i] = malloc(width * sizeof(int));
         if (!image_data->red_components[i] || !image_data->green_components[i] || !image_data->blue_components[i]) {
-            perror("❌ Error allocating memory for columns (width) in the image.");
+            perror("❌ Error allocating memory for columns (width) in the RGB components.");
             for (int j = 0; j <= i; j++) {
                 free(image_data->red_components[j]);
                 free(image_data->green_components[j]);
@@ -70,11 +70,22 @@ ImageData extract_image_text_data(const char* path) {
         }
     }
 
-    image_data->quantized_pixels = malloc(width * height * sizeof(int));
+    image_data->quantized_pixels = malloc(height * sizeof(int*));
     if (!image_data->quantized_pixels) {
-        perror("❌ Error allocating memory for quantized pixels.");
+        perror("❌ Error allocating memory for rows (height) in the quantized pixels.");
         free(image_data->quantized_pixels);
         return NULL;
+    }
+    for (int i = 0; i < height; i++) {
+        image_data->quantized_pixels[i] = malloc(height * sizeof(int));
+        if (!image_data->quantized_pixels[i]) {
+            perror("❌ Error allocating memory for columns (width) in the RGB components.");
+            for (int j = 0; j <= i; j++) {
+                free(image_data->quantized_pixels[i]);
+            }
+            free(image_data->quantized_pixels);
+            return NULL;
+        }
     }
 
     extract_color_components(height, width, image_data->red_components, cursor_image_text);
@@ -109,4 +120,26 @@ void quantize_image(const ImageData image, const int n) {
         }
     }
 
+}
+
+
+void get_thresholds(const Color color, int thresholds[6]) {
+    switch (color) {
+        case ORANGE:
+            thresholds[0] = 136; thresholds[1] = 250; // Red Min/Max
+            thresholds[2] = 27;   thresholds[3] = 56; // Green Min/Max
+            thresholds[4] = 0;   thresholds[5] = 10; // Blue Min/Max
+        break;
+        case BLUE:
+            thresholds[0] = 0;   thresholds[1] = 10; // Red Min/Max
+            thresholds[2] = 21;   thresholds[3] = 94; // Green Min/Max
+            thresholds[4] = 48; thresholds[5] = 255; // Blue Min/Max
+        break;
+        case YELLOW:
+            thresholds[0] = 200; thresholds[1] = 255; // Red Min/Max
+            thresholds[2] = 180; thresholds[3] = 255; // Green Min/Max
+            thresholds[4] = 0;   thresholds[5] = 100; // Blue Min/Max
+        break;
+        default:;
+    }
 }
