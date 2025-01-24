@@ -147,9 +147,9 @@ void get_thresholds(const Color color, int thresholds[6]) {
 }
 
 Cluster find_cluster(const ImageData image, const int thresholds[6]) {
-    Cluster* cluster_orange = malloc(sizeof(Cluster));
-    Cluster* cluster_blue = malloc(sizeof(Cluster));
-    Cluster* cluster_yellow = malloc(sizeof(Cluster));
+    Cluster cluster_orange = malloc(sizeof(Cluster));
+    Cluster cluster_blue = malloc(sizeof(Cluster));
+    Cluster cluster_yellow = malloc(sizeof(Cluster));
 
     cluster_orange->number_pixels = 0;
     cluster_orange->binary_mask = malloc(image->height * sizeof(int*));
