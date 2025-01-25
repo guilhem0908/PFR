@@ -6,6 +6,7 @@
 #include "cluster.h"
 
 #include <stdlib.h>
+int directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
 Clusters init_clusters(void) {
     return NULL;
