@@ -25,6 +25,8 @@ typedef struct Cluster_ {
 
 typedef Cluster* Clusters;
 
+int directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
 /**
  * @brief Initializes a linked list of clusters.
  *
@@ -77,5 +79,9 @@ void find_clusters_attributes(const Clusters clusters);
 void display_clusters(Clusters clusters);
 
 void free_clusters(const Clusters clusters);
+
+int dfs(int** mask, int** visited, int height, int width, int x, int y);
+
+void update_binary_mask_with_largest_cluster(Cluster* cluster);
 
 #endif //CLUSTER_H

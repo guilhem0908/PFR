@@ -8,7 +8,7 @@
 
 typedef struct {
     int width;
-    int height;a
+    int height;
     int** red_components;
     int** green_components;
     int** blue_components;
@@ -18,10 +18,6 @@ typedef struct {
 
 typedef ImageData_s* ImageData;
 
-typedef struct {
-    int size;  // Taille du plus grand cluster
-    int** mask; // Masque binaire correspondant au plus grand cluster
-} LargestClusterResult;
 
 /**
  * @brief Extracts pixel data for a single RGB component from image text.
