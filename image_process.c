@@ -8,14 +8,15 @@
 #include <stdlib.h>
 
 
-void extract_color_components(const int height, const int width, int** color_components, char* cursor_image_text) {
+void extract_color_components(const int height, const int width, int** color_components, char** cursor_image_text) {
     if (!color_components) {
         perror("❌ Error allocating memory for color components.");
         return;
     }
+
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            color_components[i][j] = strtol(cursor_image_text, &cursor_image_text, 10);
+            color_components[i][j] = strtol(*cursor_image_text, cursor_image_text, 10);
         }
     }
 }
@@ -88,9 +89,9 @@ ImageData extract_image_text_data(const char* path) {
         }
     }
 
-    extract_color_components(height, width, image_data->red_components, cursor_image_text);
-    extract_color_components(height, width, image_data->green_components, cursor_image_text);
-    extract_color_components(height, width, image_data->blue_components, cursor_image_text);
+    extract_color_components(height, width, image_data->red_components, &cursor_image_text);
+    extract_color_components(height, width, image_data->green_components, &cursor_image_text);
+    extract_color_components(height, width, image_data->blue_components, &cursor_image_text);
 
     return image_data;
 }
@@ -122,83 +123,103 @@ void quantize_image(const ImageData image, const int n) {
     }
 }
 
-
-
-
 void get_thresholds(const Color color, int thresholds[6]) {
     switch (color) {
         case ORANGE:
             thresholds[0] = 136; thresholds[1] = 250; // Red Min/Max
-            thresholds[2] = 27;   thresholds[3] = 56; // Green Min/Max
-            thresholds[4] = 0;   thresholds[5] = 10; // Blue Min/Max
+            thresholds[2] = 27; thresholds[3] = 56; // Green Min/Max
+            thresholds[4] = 0; thresholds[5] = 10; // Blue Min/Max
         break;
         case BLUE:
-            thresholds[0] = 0;   thresholds[1] = 10; // Red Min/Max
-            thresholds[2] = 21;   thresholds[3] = 94; // Green Min/Max
+            thresholds[0] = 0; thresholds[1] = 10; // Red Min/Max
+            thresholds[2] = 21; thresholds[3] = 94; // Green Min/Max
             thresholds[4] = 48; thresholds[5] = 255; // Blue Min/Max
         break;
         case YELLOW:
             thresholds[0] = 200; thresholds[1] = 255; // Red Min/Max
             thresholds[2] = 180; thresholds[3] = 255; // Green Min/Max
-            thresholds[4] = 0;   thresholds[5] = 100; // Blue Min/Max
+            thresholds[4] = 0; thresholds[5] = 100; // Blue Min/Max
         break;
         default:;
     }
 }
 
-void find_clusters(const ImageData image, Cluster clusters[3]) {
-    int number_clusters = 0;
-
+Clusters find_clusters(const ImageData image) {
+    Clusters clusters = init_clusters();
     for (Color color = ORANGE; color <= YELLOW; color++) {
         int thresholds[6];
         int number_pixels = 0;
-        int **binary_mask = malloc(image->height * sizeof(int*));
         get_thresholds(color, thresholds);
+        int** binary_mask = malloc(image->height * sizeof(int*));
         if (!binary_mask) {
-            perror("❌ Error allocating memory for rows (height) in the quantized pixels.");
+            perror("❌ Error allocating memory for rows (height) in the binary_mask.");
             free(binary_mask);
-            return;
+            return NULL;
         }
         for (int i = 0; i < image->height; i++) {
-            binary_mask[i] = malloc(image->height * sizeof(int));
+            binary_mask[i] = malloc(image->width * sizeof(int));
             if (!binary_mask[i]) {
-                perror("❌ Error allocating memory for columns (width) in the RGB components.");
+                perror("❌ Error allocating memory for columns (width) in the binary_mask.");
                 for (int j = 0; j <= i; j++) {
                     free(binary_mask[i]);
                 }
                 free(binary_mask);
-                return;
+                return NULL;
             }
         }
         for (int i = 0; i < image->height; i++) {
             for (int j = 0; j < image->width; j++) {
-                if (image->red_components[i][j] > thresholds[0] && image->red_components[i][j] < thresholds[1] &&
-                    image->blue_components[i][j] > thresholds[2] && image->blue_components[i][j] < thresholds[3] &&
-                    image->green_components[i][j] > thresholds[4] && image->green_components[i][j] < thresholds[5]) {
+                if (image->red_components[i][j] >= thresholds[0] && image->red_components[i][j] <= thresholds[1] &&
+                    image->green_components[i][j] >= thresholds[2] && image->green_components[i][j] <= thresholds[3] &&
+                    image->blue_components[i][j] >= thresholds[4] && image->blue_components[i][j] <= thresholds[5]) {
                     binary_mask[i][j] = 1;
                     number_pixels++;
                 }
             }
         }
-        if (number_pixels >= 20 && number_pixels <= 50) {
-            const Cluster cluster = malloc(sizeof(Cluster_s));
-            if (!cluster) {
-                perror("❌ Error allocating memory for clusters.");
-                for (int i = 0; i < number_clusters; i++) {
-                    free(clusters[i]);
-                }
+        if (number_pixels > 0) {
+            clusters = add_cluster(clusters, image->width, image->height, number_pixels, binary_mask, color);
+            if (!clusters) {
+                perror("❌ Error allocating memory for clusters. (2)");
                 for (int i = 0; i <= image->height; i++) {
                     free(binary_mask[i]);
                 }
                 free(binary_mask);
-                return;
+                return NULL;
             }
-            cluster->number_pixels = number_pixels;
-            cluster->binary_mask = binary_mask;
-            cluster->color = color;
-            clusters[number_clusters] = cluster;
-            number_clusters++;
         }
+        for (int i = 0; i <= image->height; i++) {
+            free(binary_mask[i]);
+        }
+        free(binary_mask);
     }
+    return clusters;
 }
 
+void free_image_data(const ImageData image) {
+    if (image == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < image->height; ++i) {
+        free(image->red_components[i]);
+    }
+    free(image->red_components);
+
+    for (int i = 0; i < image->height; ++i) {
+        free(image->green_components[i]);
+    }
+    free(image->green_components);
+
+    for (int i = 0; i < image->height; ++i) {
+        free(image->blue_components[i]);
+    }
+    free(image->blue_components);
+
+    for (int i = 0; i < image->height; ++i) {
+        free(image->quantized_pixels[i]);
+    }
+    free(image->quantized_pixels);
+
+    free(image);
+}

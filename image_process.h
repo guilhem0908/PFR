@@ -4,6 +4,7 @@
 
 #ifndef IMAGE_PROCESS_H
 #define IMAGE_PROCESS_H
+#include "cluster.h"
 
 typedef struct {
     int width;
@@ -15,20 +16,8 @@ typedef struct {
     int** quantized_pixels;
 } ImageData_s;
 
-typedef enum {
-    ORANGE,
-    BLUE,
-    YELLOW,
-} Color;
-
-typedef struct {
-    int number_pixels;
-    int** binary_mask;
-    Color color;
-} Cluster_s;
-
 typedef ImageData_s* ImageData;
-typedef Cluster_s* Cluster;
+
 
 /**
  * @brief Extracts pixel data for a single RGB component from image text.
@@ -77,11 +66,13 @@ void quantize_image(ImageData image, int n);
 void get_thresholds(Color color, int thresholds[6]);
 
 /**
- * @brief Identifies clusters of pixels in an image based on color thresholds.
+ * @brief Identifies and extracts clusters of pixels in an image based on predefined color thresholds.
  *
  * @param image Pointer to the `ImageData` structure containing the image data.
- * @param clusters Array of `Cluster` structures to store the detected clusters (between 1 and 3).
+ * @return A `Clusters` structure containing the detected clusters, or NULL on error.
  */
-void find_clusters(const ImageData image, Cluster clusters[3]);
+Clusters find_clusters(const ImageData image);
+
+void free_image_data(const ImageData image);
 
 #endif //IMAGE_PROCESS_H
