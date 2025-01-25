@@ -4,15 +4,12 @@
 
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printf("Usage: %s <nom_du_fichier>\n", argv[0]);
-        return 1;
-    }
+
 
     char path[50];
-    snprintf(path, sizeof(path), "../IMG_300/%s.txt", argv[1]);
+    snprintf(path, sizeof(path), "C:/Users/Alec/CLionProjects/PFR/IMG_300/IMG_5389.txt");
 
-    const ImageData image_data = extract_image_text_data(path);
+    const ImageData image_data = extract_image_text_data("C:/Users/Alec/CLionProjects/PFR/IMG_300/IMG_5389.txt");
 
     Clusters clusters = find_clusters(image_data);
     find_clusters_attributes(clusters);

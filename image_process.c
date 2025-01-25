@@ -6,6 +6,7 @@
 #include "file_operations.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 void extract_color_components(const int height, const int width, int** color_components, char** cursor_image_text) {
@@ -222,4 +223,112 @@ void free_image_data(const ImageData image) {
     free(image->quantized_pixels);
 
     free(image);
+}
+
+int dfs_largest_cluster(int** binary_mask, int height, int width, int x, int y, int** visited) {
+    if (x < 0 || x >= height || y < 0 || y >= width || visited[x][y] == 1 || binary_mask[x][y] == 0) {
+        return 0;
+    }
+
+    visited[x][y] = 1;
+    int size = 1;
+
+    // Explorer les voisins dans 8 directions (haut, bas, gauche, droite et diagonales)
+    int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+    for (int i = 0; i < 8; ++i) {
+        size += dfs_largest_cluster(binary_mask, height, width, x + dx[i], y + dy[i], visited);
+    }
+
+    return size;
+}
+
+LargestClusterResult find_largest_cluster(int** binary_mask, int height, int width) {
+    int** visited = malloc(height * sizeof(int*));
+    for (int i = 0; i < height; i++) {
+        visited[i] = malloc(width * sizeof(int));
+        memset(visited[i], 0, width * sizeof(int));
+    }
+
+    int max_size = 0;
+    int** largest_mask = malloc(height * sizeof(int*));
+    for (int i = 0; i < height; i++) {
+        largest_mask[i] = malloc(width * sizeof(int));
+        memset(largest_mask[i], 0, width * sizeof(int));
+    }
+
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            if (binary_mask[i][j] == 1 && visited[i][j] == 0) {
+                int** temp_mask = malloc(height * sizeof(int*));
+                for (int k = 0; k < height; k++) {
+                    temp_mask[k] = malloc(width * sizeof(int));
+                    memset(temp_mask[k], 0, width * sizeof(int));
+                }
+
+                int size = dfs_largest_cluster(binary_mask, height, width, i, j, visited);
+                if (size > max_size) {
+                    max_size = size;
+
+                    // Copier le masque du plus grand cluster trouvé
+                    for (int k = 0; k < height; k++) {
+                        memcpy(largest_mask[k], temp_mask[k], width * sizeof(int));
+                    }
+                }
+
+                for (int k = 0; k < height; k++) {
+                    free(temp_mask[k]);
+                }
+                free(temp_mask);
+            }
+        }
+    }
+
+    for (int i = 0; i < height; i++) {
+        free(visited[i]);
+    }
+    free(visited);
+
+    LargestClusterResult result = {max_size, largest_mask};
+    return result;
+}
+
+Clusters find_largest_clusters_per_color(const ImageData image) {
+    Clusters clusters = init_clusters();
+    for (Color color = ORANGE; color <= YELLOW; ++color) {
+        int thresholds[6];
+        get_thresholds(color, thresholds);
+
+        // Créer un masque binaire pour la couleur actuelle
+        int** binary_mask = malloc(image->height * sizeof(int*));
+        for (int i = 0; i < image->height; ++i) {
+            binary_mask[i] = malloc(image->width * sizeof(int));
+            memset(binary_mask[i], 0, image->width * sizeof(int));
+        }
+
+        for (int i = 0; i < image->height; ++i) {
+            for (int j = 0; j < image->width; ++j) {
+                if (image->red_components[i][j] >= thresholds[0] && image->red_components[i][j] <= thresholds[1] &&
+                    image->green_components[i][j] >= thresholds[2] && image->green_components[i][j] <= thresholds[3] &&
+                    image->blue_components[i][j] >= thresholds[4] && image->blue_components[i][j] <= thresholds[5]) {
+                    binary_mask[i][j] = 1;
+                }
+            }
+        }
+
+        LargestClusterResult largest = find_largest_cluster(binary_mask, image->height, image->width);
+        if (largest.size > 0) {
+            clusters = add_cluster(clusters, image->width, image->height, largest.size, largest.mask, color);
+        }
+
+        for (int i = 0; i < image->height; ++i) {
+            free(binary_mask[i]);
+            free(largest.mask[i]);
+        }
+        free(binary_mask);
+        free(largest.mask);
+    }
+
+    return clusters;
 }
