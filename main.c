@@ -1,9 +1,7 @@
 #include "image_process.h"
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "file_operations.h"
-
 
 int main(int argc, char *argv[]) {
 
@@ -24,19 +22,27 @@ int main(int argc, char *argv[]) {
     find_clusters_attributes(clusters);
     display_clusters(clusters);
 
-    FILE * file2 = fopen("../result.txt", "w");
+
+    FILE *file2 = fopen("result.txt", "w");
     if (!file2) {
-        perror("❌ Error opening file.");
+        perror("❌ Erreur lors de l'ouverture du fichier pour l'écriture.");
         return -1;
     }
 
-    fprintf(file, "%d\n", number_clusters(clusters));
-    while (clusters != NULL) {
-        fprintf(file, "%s %d %d %d\n", color_to_string(clusters->color), clusters->mid_x, clusters->mid_y,
-            clusters->radius);
-        clusters = clusters->next;
+
+
+    int cluster_count = number_clusters(clusters);
+    fprintf(file2, "%d\n", cluster_count);
+
+    Clusters current_cluster = clusters;
+    while (current_cluster != NULL) {
+        fprintf(file2, "%s %d %d %d\n", color_to_string(current_cluster->color),
+                current_cluster->mid_x, current_cluster->mid_y, current_cluster->radius);
+        current_cluster = current_cluster->next;
     }
-    fclose(file);
+
+
+    fclose(file2);
 
     free_clusters(clusters);
     free_image_data(image_data);
