@@ -53,6 +53,8 @@ Clusters add_cluster(const Clusters clusters, const int width, const int height,
  */
 char* color_to_string(Color color);
 
+int number_clusters(const Clusters clusters);
+
 /**
  * @brief Calculates and sets the mid-point coordinates (mid_x, mid_y) and radius
  *        for each cluster in the linked list.

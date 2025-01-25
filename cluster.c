@@ -64,6 +64,16 @@ char* color_to_string(const Color color) {
     }
 }
 
+int number_clusters(const Clusters clusters) {
+    int number_clusters = 0;
+    Clusters current = clusters;
+    while (current != NULL) {
+        number_clusters++;
+        current = current->next;
+    }
+    return number_clusters;
+}
+
 void find_clusters_attributes(const Clusters clusters) {
     Clusters current = clusters;
     while (current != NULL) {
