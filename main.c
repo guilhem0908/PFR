@@ -2,21 +2,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "file_operations.h"
+
 
 int main(int argc, char *argv[]) {
 
+    char path[1024];
+    snprintf(path, sizeof(path), "%s", argv[1]);
 
-    char path[50];
-    snprintf(path, sizeof(path), "C:/Users/Alec/CLionProjects/PFR/IMG_300/IMG_5389.txt");
+    printf("Tentative d'ouverture du fichier : %s\n", path);
+    FILE* file = fopen(path, "rb");
+    if (!file) {
+        perror("Erreur lors de l'ouverture du fichier");
+        return -1;
+    }
 
-    const ImageData image_data = extract_image_text_data("C:/Users/Alec/CLionProjects/PFR/IMG_300/IMG_5389.txt");
+    const ImageData image_data = extract_image_text_data(path);
 
     Clusters clusters = find_clusters(image_data);
+    update_binary_mask_with_largest_cluster(clusters);
     find_clusters_attributes(clusters);
     display_clusters(clusters);
 
-    FILE* file = fopen("../result.txt", "w");
-    if (!file) {
+    FILE * file2 = fopen("../result.txt", "w");
+    if (!file2) {
         perror("❌ Error opening file.");
         return -1;
     }

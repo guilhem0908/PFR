@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 char* read_file(const char* path) {
-    FILE* file = fopen(path, "r");
+    FILE* file = fopen(path, "rb");
     if (!file) {
         perror("❌ Error opening file.");
         return NULL;

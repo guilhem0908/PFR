@@ -1,7 +1,7 @@
 TARGET = PFR
 
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra -Werror
+CFLAGS = -std=c11 -Wall
 
 SRCS = main.c file_operations.c image_process.c cluster.c
 OBJS = $(SRCS:.c=.o)

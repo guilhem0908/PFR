@@ -141,10 +141,10 @@ int dfs(int** mask, int** visited, int height, int width, int x, int y) {
         return 0;
     }
 
-    visited[x][y] = 1; // Marque le pixel comme visité.
+    visited[x][y] = 1;
     int size = 1;
 
-    // Explore les voisins.
+
     for (int d = 0; d < 4; d++) {
         size += dfs(mask, visited, height, width, x + directions[d][0], y + directions[d][1]);
     }
@@ -158,7 +158,7 @@ void update_binary_mask_with_largest_cluster(Cluster* cluster) {
         int height = cluster->height;
         int width = cluster->width;
 
-        // Matrice pour suivre les pixels visités.
+
         int** visited = malloc(height * sizeof(int*));
         for (int i = 0; i < height; i++) {
         visited[i] = calloc(width, sizeof(int));
@@ -168,7 +168,7 @@ void update_binary_mask_with_largest_cluster(Cluster* cluster) {
         int largest_cluster_x = -1;
         int largest_cluster_y = -1;
 
-    // Trouver le plus grand cluster.
+
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (cluster->binary_mask[i][j] == 1 && !visited[i][j]) {
@@ -182,17 +182,17 @@ void update_binary_mask_with_largest_cluster(Cluster* cluster) {
             }
         }
 
-    // Réinitialise visited pour marquer uniquement le plus grand cluster.
+
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 visited[i][j] = 0;
             }
         }
 
-    // Marque le plus grand cluster dans visited.
+
         dfs(cluster->binary_mask, visited, height, width, largest_cluster_x, largest_cluster_y);
 
-    // Met à jour le masque binaire pour ne conserver que le plus grand cluster.
+
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (visited[i][j]) {
@@ -205,7 +205,7 @@ void update_binary_mask_with_largest_cluster(Cluster* cluster) {
 
         cluster->number_pixels = largest_size;
 
-        // Libère la mémoire.
+
         for (int i = 0; i < height; i++) {
             free(visited[i]);
         }
