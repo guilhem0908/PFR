@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  make:
+    name: gcc build and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: make
+      - name: Unit and regression tests
+        run: make test
+      - name: Same tests with AddressSanitizer and UBSan
+        run: make asan
+      - name: Committed results match the detector output
+        run: python3 scripts/evaluate.py --check
+      - name: Test photos carry no camera metadata
+        run: python3 scripts/strip_exif.py --check
+
+  cmake:
+    name: CMake build and CTest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure and build
+        run: cmake -S . -B build-cmake && cmake --build build-cmake
+      - name: Test
+        run: ctest --test-dir build-cmake --output-on-failure
