@@ -15,7 +15,7 @@ Clusters init_clusters(void) {
 Clusters add_cluster(const Clusters clusters, const int width, const int height, const int number_pixels, int** binary_mask, const Color color) {
     const Clusters new_clusters = malloc(sizeof(Cluster));
     if (!new_clusters) {
-        perror("❌ Error allocating memory for clusters.");
+        perror("Error allocating memory for clusters");
         return NULL;
     }
 
@@ -29,13 +29,14 @@ Clusters add_cluster(const Clusters clusters, const int width, const int height,
 
     new_clusters->binary_mask = malloc(height * sizeof(int*));
     if (new_clusters->binary_mask == NULL) {
-        perror("❌ Error allocating memory for binary_mask rows.");
+        perror("Error allocating memory for binary_mask rows");
         free(new_clusters);
         return NULL;
     }
     for (int i = 0; i < height; i++) {
         new_clusters->binary_mask[i] = malloc(width * sizeof(int));
         if (new_clusters->binary_mask[i] == NULL) {
+            perror("Error allocating memory for binary_mask columns");
             for (int j = 0; j < i; j++) {
                 free(new_clusters->binary_mask[j]);
             }
@@ -48,7 +49,6 @@ Clusters add_cluster(const Clusters clusters, const int width, const int height,
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             new_clusters->binary_mask[i][j] = binary_mask[i][j];
-
         }
     }
 
@@ -76,26 +76,38 @@ int number_clusters(const Clusters clusters) {
 }
 
 
-Clusters find_clusters_attributes( Clusters clusters) {
-    Clusters current = clusters;
-    Clusters daron = NULL;
-    while (current != NULL) {
-        int min_x = current->height;
-        int min_y = current->width;
-        int max_x = 0;
-        int max_y = 0;
-        for (int i = 0; i < current->height; i++){
-            for(int j = 0; j < current->width; j++){
-                if (current->binary_mask[i][j] == 1 && min_y > i){
+/* Frees one node of the list together with its mask. */
+static void free_cluster(Cluster* cluster) {
+    for (int i = 0; i < cluster->height; i++) {
+        free(cluster->binary_mask[i]);
+    }
+    free(cluster->binary_mask);
+    free(cluster);
+}
+
+Clusters find_clusters_attributes(Clusters clusters) {
+    Cluster** link = &clusters;
+    while (*link != NULL) {
+        Cluster* current = *link;
+        int min_x = current->width;
+        int min_y = current->height;
+        int max_x = -1;
+        int max_y = -1;
+        for (int i = 0; i < current->height; i++) {
+            for (int j = 0; j < current->width; j++) {
+                if (current->binary_mask[i][j] != 1) {
+                    continue;
+                }
+                if (min_y > i) {
                     min_y = i;
                 }
-                if (current->binary_mask[i][j] == 1){
+                if (max_y < i) {
                     max_y = i;
                 }
-                if (current->binary_mask[i][j] == 1 && min_x > j){
-                    min_x = j ;
+                if (min_x > j) {
+                    min_x = j;
                 }
-                if (current->binary_mask[i][j] == 1 && max_x < j){
+                if (max_x < j) {
                     max_x = j;
                 }
             }
@@ -107,29 +119,23 @@ Clusters find_clusters_attributes( Clusters clusters) {
         const int radius_y = (max_y - min_y) / 2;
         current->radius = (radius_x > radius_y) ? radius_x : radius_y;
 
-		if (current->radius < 13) {
-                  if (daron == NULL) {
-                    Clusters temp = current->next;
-                    free(current);
-                    return find_clusters_attributes(temp);
-                  }
-                  daron->next = current->next;
-                  free_clusters(current);
-                  return find_clusters_attributes(clusters);
-		}
-       	else {
-             if ((current->color) == ORANGE) {
-        		current->mid_y *= 1 - (current->radius * 0.0013) ;
-        		}
-        	if ((current->color) == YELLOW) {
-          		current->mid_y *= 1 + (current->radius * 0.0015) ;
-       	 }
-				if ((current->color) == ORANGE || current->color == YELLOW) {
-        	 	  current->radius *= 1.12 ;
-        	}
-             daron = current;
-             current = current->next;
+        if (max_x < 0 || current->radius < MIN_BALL_RADIUS) {
+            // Empty mask or blob too small to be a ball: unlink this node only.
+            *link = current->next;
+            free_cluster(current);
+            continue;
         }
+
+        if (current->color == ORANGE) {
+            current->mid_y *= 1 - (current->radius * 0.0013);
+        }
+        if (current->color == YELLOW) {
+            current->mid_y *= 1 + (current->radius * 0.0015);
+        }
+        if (current->color == ORANGE || current->color == YELLOW) {
+            current->radius *= 1.12;
+        }
+        link = &current->next;
     }
     return clusters;
 }
@@ -150,14 +156,7 @@ void free_clusters(const Clusters clusters) {
     while (current != NULL) {
         const Clusters temp = current;
         current = current->next;
-
-        for (int i = 0; i < temp->height; i++) {
-            if (temp->binary_mask[i] != NULL)
-                free(temp->binary_mask[i]);
-        }
-        if (temp->binary_mask != NULL)
-            free(temp->binary_mask);
-        free(temp);
+        free_cluster(temp);
     }
 }
 

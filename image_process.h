@@ -84,10 +84,14 @@ void get_thresholds(Color color, int thresholds[6]);
 /**
  * @brief Identifies and extracts clusters of pixels in an image based on predefined color thresholds.
  *
+ * One cluster is created per colour that has at least one matching pixel; its
+ * binary mask marks every pixel inside the colour thresholds.
+ *
  * @param image Pointer to the `ImageData` structure containing the image data.
- * @return A `Clusters` structure containing the detected clusters, or NULL on error.
+ * @param clusters Receives the head of the list (NULL when no pixel matches any colour).
+ * @return true on success, false if memory cannot be allocated (the list is then NULL).
  */
-Clusters find_clusters(const ImageData image);
+bool find_clusters(const ImageData image, Clusters* clusters);
 
 /**
  * @brief Releases an image and all its planes. Accepts NULL.

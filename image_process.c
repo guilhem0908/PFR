@@ -202,34 +202,23 @@ void get_thresholds(const Color color, int thresholds[6]) {
     }
 }
 
-Clusters find_clusters(const ImageData image) {
-    Clusters clusters = init_clusters();
+bool find_clusters(const ImageData image, Clusters* clusters) {
+    *clusters = init_clusters();
     for (Color color = ORANGE; color <= YELLOW; color++) {
         int thresholds[6];
         get_thresholds(color, thresholds);
         int number_pixels = 0;
 
-        int** binary_mask = malloc(image->height * sizeof(int*));
+        int** binary_mask = allocate_plane(image->height, image->width);
         if (!binary_mask) {
-            perror("❌ Error allocating memory for rows (height) in the binary_mask.");
-            free(binary_mask);
-            return NULL;
+            perror("Error allocating memory for the binary mask");
+            free_clusters(*clusters);
+            *clusters = NULL;
+            return false;
         }
         for (int i = 0; i < image->height; i++) {
-            binary_mask[i] = malloc(image->width * sizeof(int));
-            if (!binary_mask[i]) {
-                perror("❌ Error allocating memory for columns (width) in the binary_mask.");
-                for (int j = 0; j <= i; j++) {
-                    free(binary_mask[i]);
-                }
-                free(binary_mask);
-                return NULL;
-            }
-        }
-        for (int i = 0; i < image->height; ++i) {
-            for (int j = 0; j < image->width; ++j) {
-			binary_mask[i][j] =0;
-              if (image->red_components[i][j] >= thresholds[0] && image->red_components[i][j] <= thresholds[1] &&
+            for (int j = 0; j < image->width; j++) {
+                if (image->red_components[i][j] >= thresholds[0] && image->red_components[i][j] <= thresholds[1] &&
                     image->green_components[i][j] >= thresholds[2] && image->green_components[i][j] <= thresholds[3] &&
                     image->blue_components[i][j] >= thresholds[4] && image->blue_components[i][j] <= thresholds[5]) {
                     binary_mask[i][j] = 1;
@@ -238,23 +227,19 @@ Clusters find_clusters(const ImageData image) {
             }
         }
 
-        if (number_pixels > 0 ) {
-            clusters = add_cluster(clusters, image->width, image->height, number_pixels, binary_mask, color);
-            if (!clusters) {
-                perror("❌ Error allocating memory for clusters. (2)");
-                for (int i = 0; i <= image->height; i++) {
-                    free(binary_mask[i]);
-                }
-                free(binary_mask);
-                return NULL;
+        if (number_pixels > 0) {
+            const Clusters extended = add_cluster(*clusters, image->width, image->height, number_pixels, binary_mask, color);
+            if (!extended) {
+                free_plane(binary_mask, image->height);
+                free_clusters(*clusters);
+                *clusters = NULL;
+                return false;
             }
+            *clusters = extended;
         }
-        for (int i = 0; i < image->height; i++) {
-            free(binary_mask[i]);
-        }
-        free(binary_mask);
+        free_plane(binary_mask, image->height);
     }
-    return clusters;
+    return true;
 }
 
 void free_image_data(const ImageData image) {

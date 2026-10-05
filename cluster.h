@@ -25,6 +25,9 @@ typedef struct Cluster_ {
 
 typedef Cluster* Clusters;
 
+/** Blobs whose radius is below this value (in pixels) are not reported as balls. */
+#define MIN_BALL_RADIUS 13
+
 
 /**
  * @brief Initializes a linked list of clusters.
@@ -54,13 +57,24 @@ Clusters add_cluster(const Clusters clusters, const int width, const int height,
  */
 char* color_to_string(Color color);
 
+/**
+ * @brief Counts the clusters of the linked list.
+ *
+ * @param clusters Pointer to the head of the clusters linked list.
+ * @return The number of clusters (0 for an empty list).
+ */
 int number_clusters(const Clusters clusters);
 
 /**
  * @brief Calculates and sets the mid-point coordinates (mid_x, mid_y) and radius
- *        for each cluster in the linked list.
+ *        for each cluster in the linked list, from the bounding box of its mask.
+ *
+ * Clusters whose radius is below MIN_BALL_RADIUS are removed from the list and freed.
+ * For orange and yellow balls the row of the centre and the radius then receive
+ * the empirical corrections tuned on the test photos.
  *
  * @param clusters Pointer to the head of the clusters linked list.
+ * @return The head of the list once the small clusters are removed (may be NULL).
  */
 Clusters find_clusters_attributes(Clusters clusters);
 
@@ -77,6 +91,11 @@ Clusters find_clusters_attributes(Clusters clusters);
  */
 void display_clusters(Clusters clusters);
 
+/**
+ * @brief Frees every cluster of the list together with its binary mask.
+ *
+ * @param clusters Pointer to the head of the clusters linked list (may be NULL).
+ */
 void free_clusters(const Clusters clusters);
 
 int dfs(int** mask, int** visited, int height, int width, int x, int y);
