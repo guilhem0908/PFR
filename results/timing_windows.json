@@ -1,0 +1,32 @@
+{
+  "what": "wall-clock time of one run of the detector on one 300 x 300 text image, in milliseconds (process start-up, parsing, detection, result file); fastest of several runs per photo",
+  "runs_per_photo": 7,
+  "cpu": "Intel(R) Core(TM) i9-14900HX",
+  "system": "Windows 11 (AMD64)",
+  "compiler": "gcc (MinGW.org GCC-6.3.0-1) 6.3.0",
+  "median_ms": 39.7,
+  "min_ms": 30.7,
+  "max_ms": 68.0,
+  "per_photo_ms": {
+    "IMG_5389": 35.7,
+    "IMG_5390": 33.8,
+    "IMG_5391": 30.7,
+    "IMG_5392": 30.7,
+    "IMG_5393": 32.8,
+    "IMG_5394": 33.4,
+    "IMG_5395": 36.8,
+    "IMG_5396": 38.2,
+    "IMG_5397": 37.6,
+    "IMG_5398": 38.5,
+    "IMG_5399": 40.9,
+    "IMG_5400": 45.8,
+    "IMG_5401": 45.4,
+    "IMG_5402": 54.7,
+    "IMG_5403": 68.0,
+    "IMG_5404": 58.6,
+    "IMG_5405": 48.6,
+    "IMG_5406": 58.8,
+    "IMG_5407": 63.7,
+    "IMG_5408": 54.9
+  }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Time the detector on the 20 test photos and write results/timing.json.
+"""Time the detector on the 20 test photos and write results/timing_<system>.json.
 
 Each measurement covers one whole run of the program: process start-up,
 reading and parsing the 1 MB text image, detection, and writing the result
@@ -79,9 +79,10 @@ def main():
         "per_photo_ms": per_image,
     }
     RESULTS_DIR.mkdir(exist_ok=True)
-    (RESULTS_DIR / "timing.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n")
+    target = RESULTS_DIR / f"timing_{platform.system().lower()}.json"
+    target.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"median {report['median_ms']} ms per photo (min {report['min_ms']}, max {report['max_ms']}) "
-          f"on {report['cpu']}")
+          f"on {report['cpu']}; written to results/{target.name}")
     return 0
 
 
