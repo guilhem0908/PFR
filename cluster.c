@@ -128,14 +128,22 @@ Clusters find_clusters_attributes(Clusters clusters) {
             continue;
         }
 
+        // Empirical corrections from the integration version, tuned on the 300 x 300
+        // test photos: the thresholds do not cover the whole surface of orange and
+        // yellow balls, so the bounding box of the mask is off-centre and too small.
+        // They are written with integers (truncated like the original floating-point
+        // expressions) so that the output does not depend on floating-point rounding.
         if (current->color == ORANGE) {
-            current->mid_y *= 1 - (current->radius * 0.0013);
+            // mid_y * (1 - 0.0013 * radius)
+            current->mid_y = current->mid_y * (10000 - 13 * current->radius) / 10000;
         }
         if (current->color == YELLOW) {
-            current->mid_y *= 1 + (current->radius * 0.0015);
+            // mid_y * (1 + 0.0015 * radius)
+            current->mid_y = current->mid_y * (10000 + 15 * current->radius) / 10000;
         }
         if (current->color == ORANGE || current->color == YELLOW) {
-            current->radius *= 1.12;
+            // radius * 1.12
+            current->radius = current->radius * 112 / 100;
         }
         link = &current->next;
     }
