@@ -1,0 +1,315 @@
+{
+  "criterion": "a ball is found when a detection of its colour has its centre inside the labelled circle",
+  "dataset": {
+    "images": 20,
+    "images_with_balls": 17,
+    "empty_scenes": 3,
+    "balls": 28,
+    "balls_per_colour": {
+      "orange": 11,
+      "blue": 10,
+      "yellow": 7
+    }
+  },
+  "detection": {
+    "balls": 28,
+    "balls_found": 28,
+    "balls_missed": 0,
+    "false_detections": 0,
+    "empty_scenes": 3,
+    "empty_scenes_without_detection": 3,
+    "images": 20,
+    "images_fully_correct": 20
+  },
+  "localisation": {
+    "orange": {
+      "balls": 11,
+      "centre_error_median_px": 6.1,
+      "centre_error_max_px": 14.2,
+      "vertical_offset_mean_px": 3.7,
+      "radius_error_mean_px": -0.4,
+      "radius_error_abs_median_px": 2,
+      "radius_error_abs_max_px": 10,
+      "iou_median": 0.83,
+      "iou_min": 0.59
+    },
+    "blue": {
+      "balls": 10,
+      "centre_error_median_px": 1.8,
+      "centre_error_max_px": 6.1,
+      "vertical_offset_mean_px": 0.7,
+      "radius_error_mean_px": -2.1,
+      "radius_error_abs_median_px": 2.0,
+      "radius_error_abs_max_px": 4,
+      "iou_median": 0.87,
+      "iou_min": 0.74
+    },
+    "yellow": {
+      "balls": 7,
+      "centre_error_median_px": 4.1,
+      "centre_error_max_px": 18.0,
+      "vertical_offset_mean_px": -6,
+      "radius_error_mean_px": 1.9,
+      "radius_error_abs_median_px": 1,
+      "radius_error_abs_max_px": 7,
+      "iou_median": 0.85,
+      "iou_min": 0.69
+    },
+    "all": {
+      "balls": 28,
+      "centre_error_median_px": 4.1,
+      "centre_error_max_px": 18.0,
+      "vertical_offset_mean_px": 0.2,
+      "radius_error_mean_px": -0.4,
+      "radius_error_abs_median_px": 2.0,
+      "radius_error_abs_max_px": 10,
+      "iou_median": 0.85,
+      "iou_min": 0.59
+    }
+  },
+  "mask_coverage": {
+    "orange": {
+      "disc_median_percent": 38,
+      "upper_half_median_percent": 5,
+      "lower_half_median_percent": 64
+    },
+    "blue": {
+      "disc_median_percent": 52,
+      "upper_half_median_percent": 65,
+      "lower_half_median_percent": 45
+    },
+    "yellow": {
+      "disc_median_percent": 51,
+      "upper_half_median_percent": 85,
+      "lower_half_median_percent": 14
+    }
+  },
+  "corrections": {
+    "orange": {
+      "bounding_box": {
+        "balls": 11,
+        "centre_error_median_px": 11.0,
+        "centre_error_max_px": 20.9,
+        "vertical_offset_mean_px": 11.5,
+        "radius_error_mean_px": -4.5,
+        "radius_error_abs_median_px": 3,
+        "radius_error_abs_max_px": 15,
+        "iou_median": 0.66,
+        "iou_min": 0.51
+      },
+      "output": {
+        "balls": 11,
+        "centre_error_median_px": 6.1,
+        "centre_error_max_px": 14.2,
+        "vertical_offset_mean_px": 3.7,
+        "radius_error_mean_px": -0.4,
+        "radius_error_abs_median_px": 2,
+        "radius_error_abs_max_px": 10,
+        "iou_median": 0.83,
+        "iou_min": 0.59
+      }
+    },
+    "yellow": {
+      "bounding_box": {
+        "balls": 7,
+        "centre_error_median_px": 10.0,
+        "centre_error_max_px": 35.0,
+        "vertical_offset_mean_px": -13.1,
+        "radius_error_mean_px": -2,
+        "radius_error_abs_median_px": 2,
+        "radius_error_abs_max_px": 3,
+        "iou_median": 0.67,
+        "iou_min": 0.56
+      },
+      "output": {
+        "balls": 7,
+        "centre_error_median_px": 4.1,
+        "centre_error_max_px": 18.0,
+        "vertical_offset_mean_px": -6,
+        "radius_error_mean_px": 1.9,
+        "radius_error_abs_median_px": 1,
+        "radius_error_abs_max_px": 7,
+        "iou_median": 0.85,
+        "iou_min": 0.69
+      }
+    }
+  },
+  "brightness": [
+    {
+      "gain_percent": 50,
+      "balls": 28,
+      "balls_found": 18,
+      "balls_missed": 10,
+      "false_detections": 4,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 13,
+      "found_by_colour": {
+        "orange": 10,
+        "blue": 8,
+        "yellow": 0
+      }
+    },
+    {
+      "gain_percent": 60,
+      "balls": 28,
+      "balls_found": 20,
+      "balls_missed": 8,
+      "false_detections": 4,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 13,
+      "found_by_colour": {
+        "orange": 10,
+        "blue": 10,
+        "yellow": 0
+      }
+    },
+    {
+      "gain_percent": 70,
+      "balls": 28,
+      "balls_found": 20,
+      "balls_missed": 8,
+      "false_detections": 3,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 13,
+      "found_by_colour": {
+        "orange": 10,
+        "blue": 10,
+        "yellow": 0
+      }
+    },
+    {
+      "gain_percent": 80,
+      "balls": 28,
+      "balls_found": 25,
+      "balls_missed": 3,
+      "false_detections": 3,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 2,
+      "images": 20,
+      "images_fully_correct": 15,
+      "found_by_colour": {
+        "orange": 10,
+        "blue": 10,
+        "yellow": 5
+      }
+    },
+    {
+      "gain_percent": 90,
+      "balls": 28,
+      "balls_found": 27,
+      "balls_missed": 1,
+      "false_detections": 1,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 18,
+      "found_by_colour": {
+        "orange": 11,
+        "blue": 10,
+        "yellow": 6
+      }
+    },
+    {
+      "gain_percent": 100,
+      "balls": 28,
+      "balls_found": 28,
+      "balls_missed": 0,
+      "false_detections": 0,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 20,
+      "found_by_colour": {
+        "orange": 11,
+        "blue": 10,
+        "yellow": 7
+      }
+    },
+    {
+      "gain_percent": 110,
+      "balls": 28,
+      "balls_found": 27,
+      "balls_missed": 1,
+      "false_detections": 0,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 19,
+      "found_by_colour": {
+        "orange": 11,
+        "blue": 9,
+        "yellow": 7
+      }
+    },
+    {
+      "gain_percent": 120,
+      "balls": 28,
+      "balls_found": 27,
+      "balls_missed": 1,
+      "false_detections": 3,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 16,
+      "found_by_colour": {
+        "orange": 11,
+        "blue": 10,
+        "yellow": 6
+      }
+    },
+    {
+      "gain_percent": 130,
+      "balls": 28,
+      "balls_found": 26,
+      "balls_missed": 2,
+      "false_detections": 4,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 14,
+      "found_by_colour": {
+        "orange": 10,
+        "blue": 10,
+        "yellow": 6
+      }
+    },
+    {
+      "gain_percent": 140,
+      "balls": 28,
+      "balls_found": 26,
+      "balls_missed": 2,
+      "false_detections": 5,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 13,
+      "found_by_colour": {
+        "orange": 10,
+        "blue": 10,
+        "yellow": 6
+      }
+    },
+    {
+      "gain_percent": 150,
+      "balls": 28,
+      "balls_found": 26,
+      "balls_missed": 2,
+      "false_detections": 7,
+      "empty_scenes": 3,
+      "empty_scenes_without_detection": 3,
+      "images": 20,
+      "images_fully_correct": 12,
+      "found_by_colour": {
+        "orange": 10,
+        "blue": 10,
+        "yellow": 6
+      }
+    }
+  ]
+}
