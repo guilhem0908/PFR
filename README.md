@@ -217,6 +217,19 @@ pip install -r requirements.txt
 make figures
 ```
 
+`make evaluate` rewrites `results/` and the tables above with identical
+content on Linux and Windows. The PNG files can differ by a few bytes from one
+Pillow version to another; the drawings are the same.
+
+Other helpers, all run from the repository root:
+
+- `python3 scripts/image_to_text.py photo.jpg photo.txt` converts an image to
+  the text format; with `--verify` it compares the 20 dumps with their JPEG
+  files (they match exactly).
+- `python3 scripts/strip_exif.py --check` confirms that the photos carry no
+  camera metadata.
+- `python3 scripts/benchmark.py` repeats the timing.
+
 ## Status
 
 | Part | Status |
