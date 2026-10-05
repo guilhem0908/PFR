@@ -57,7 +57,7 @@ Clusters add_cluster(const Clusters clusters, const int width, const int height,
  * @param color The target color (defined in the `Color` enum).
  * @return A pointer to a string representing the color, or NULL on error.
  */
-char* color_to_string(Color color);
+const char* color_to_string(Color color);
 
 /**
  * @brief Counts the clusters of the linked list.
@@ -81,13 +81,8 @@ int number_clusters(const Clusters clusters);
 Clusters find_clusters_attributes(Clusters clusters);
 
 /**
- * @brief Displays the information of each cluster in the linked list.
- *
- * This function iterates through the linked list of clusters and prints the
- * following information for each cluster:
- *   - Color of the cluster.
- *   - Mid-point coordinates (mid_x, mid_y).
- *   - Radius of the cluster.
+ * @brief Prints one line per cluster of the linked list (colour, mid-point
+ *        coordinates and radius), or "No ball detected." for an empty list.
  *
  * @param clusters Pointer to the head of the clusters linked list.
  */

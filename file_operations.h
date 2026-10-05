@@ -26,4 +26,16 @@ char* read_file(const char* path);
  */
 bool write_to_file(const char* path, const char* text);
 
+/**
+ * @brief Writes a binary mask as a greyscale PGM image (binary "P5" format).
+ * Non-zero mask values are written as white (255), zeros as black.
+ *
+ * @param path File path to write to.
+ * @param mask 2D array of `height` rows and `width` columns.
+ * @param width Number of columns.
+ * @param height Number of rows.
+ * @return true on success, false if the file cannot be written.
+ */
+bool write_mask_pgm(const char* path, int** mask, int width, int height);
+
 #endif //FILE_OPERATIONS_H

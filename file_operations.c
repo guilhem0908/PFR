@@ -56,3 +56,21 @@ bool write_to_file(const char* path, const char* text) {
     fclose(file);
     return true;
 }
+
+bool write_mask_pgm(const char* path, int** mask, const int width, const int height) {
+    FILE* file = fopen(path, "wb");
+    if (!file) {
+        perror("Error opening file");
+        return false;
+    }
+
+    fprintf(file, "P5\n%d %d\n255\n", width, height);
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            fputc(mask[i][j] ? 255 : 0, file);
+        }
+    }
+
+    const bool written = !ferror(file);
+    return fclose(file) == 0 && written;
+}

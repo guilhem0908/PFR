@@ -58,11 +58,11 @@ Clusters add_cluster(const Clusters clusters, const int width, const int height,
     return new_clusters;
 }
 
-char* color_to_string(const Color color) {
+const char* color_to_string(const Color color) {
     switch (color) {
         case ORANGE: return "orange";
         case BLUE: return "blue";
-        case YELLOW: return "jaune";
+        case YELLOW: return "yellow";
         default: return NULL;
     }
 }
@@ -152,11 +152,15 @@ Clusters find_clusters_attributes(Clusters clusters) {
 
 
 void display_clusters(const Clusters clusters) {
+    if (clusters == NULL) {
+        printf("No ball detected.\n");
+        return;
+    }
+
     Clusters current = clusters;
     while (current != NULL) {
-        printf("Balle de couleur %s detecte.\n", color_to_string(current->color));
-        printf("Positionne en (%d, %d) et de rayon %d.\n", current->mid_x, current->mid_y, current->radius);
-        printf("\n");
+        printf("%s ball detected at (%d, %d), radius %d.\n", color_to_string(current->color),
+               current->mid_x, current->mid_y, current->radius);
         current = current->next;
     }
 }
