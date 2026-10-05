@@ -1,7 +1,6 @@
 # Build outputs
 /build/
 /PFR
-/PFR_asan
 *.exe
 *.o
 *.obj
