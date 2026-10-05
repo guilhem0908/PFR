@@ -3,6 +3,8 @@
 #   make            build the detector (PFR, or PFR.exe on Windows)
 #   make test       unit tests + regression tests on the 20 photos
 #   make asan       same tests with AddressSanitizer and UBSan (Linux, macOS)
+#   make evaluate   compare the detections with the reference labels (needs Python 3)
+#   make figures    redraw the figures of docs/ (needs Python 3 and Pillow)
 #   make clean      remove everything that was built
 #
 # On Windows with MinGW, run mingw32-make from Git Bash or MSYS.
@@ -11,9 +13,11 @@ CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra -pedantic -O2
 SANITIZE = -std=c11 -Wall -Wextra -pedantic -O1 -g -fno-omit-frame-pointer \
            -fsanitize=address,undefined -fno-sanitize-recover=all
+PYTHON = python3
 
 ifeq ($(OS),Windows_NT)
 EXE = .exe
+PYTHON = python
 endif
 
 TARGET = PFR$(EXE)
@@ -50,7 +54,13 @@ asan: $(GEN_IMAGE)
 	$(BUILD)/test_units_asan$(EXE) 2> $(BUILD)/test_units_asan.log || { cat $(BUILD)/test_units_asan.log; exit 1; }
 	sh tests/run_tests.sh $(BUILD)/PFR_asan$(EXE) $(GEN_IMAGE)
 
+evaluate: $(TARGET)
+	$(PYTHON) scripts/evaluate.py
+
+figures: $(TARGET)
+	$(PYTHON) scripts/make_figures.py
+
 clean:
 	rm -rf $(BUILD) $(TARGET)
 
-.PHONY: all test asan clean
+.PHONY: all test asan evaluate figures clean
