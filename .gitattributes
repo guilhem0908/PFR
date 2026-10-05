@@ -2,3 +2,8 @@
 *.sh text eol=lf
 *.jpeg binary
 *.png binary
+
+# Files rewritten by the scripts keep LF endings on every platform,
+# so regenerating them never shows up as a change.
+results/* text eol=lf
+tests/expected/*.txt text eol=lf
