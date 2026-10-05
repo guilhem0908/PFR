@@ -4,102 +4,146 @@
 
 #include "image_process.h"
 #include "file_operations.h"
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 
-void extract_color_components(const int height, const int width, int** color_components, char** cursor_image_text) {
-    if (!color_components) {
-        perror("❌ Error allocating memory for color components.");
-        return;
-    }
+/* Largest accepted image side; keeps every allocation and index well inside the range of int. */
+#define MAX_IMAGE_SIDE 4096
 
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            color_components[i][j] = strtol(*cursor_image_text, cursor_image_text, 10);
-        }
+/* Reads the next integer of the text and moves the cursor past it. Returns false when there is none. */
+static bool read_integer(const char** cursor_image_text, long* value) {
+    char* end;
+    errno = 0;
+    *value = strtol(*cursor_image_text, &end, 10);
+    if (end == *cursor_image_text || errno == ERANGE) {
+        return false;
     }
+    *cursor_image_text = end;
+    return true;
 }
 
+/* Fills one colour plane from the text. Returns false on a missing sample or a value outside 0-255. */
+static bool extract_color_components(const int height, const int width, int** color_components,
+                                     const char** cursor_image_text) {
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            long value;
+            if (!read_integer(cursor_image_text, &value) || value < 0 || value > 255) {
+                return false;
+            }
+            color_components[i][j] = (int) value;
+        }
+    }
+    return true;
+}
 
-ImageData extract_image_text_data(const char* path) {
-    const char* image_text = read_file(path);
+/* Allocates a height x width plane filled with zeros, or returns NULL. */
+static int** allocate_plane(const int height, const int width) {
+    int** plane = malloc(height * sizeof(int*));
+    if (!plane) {
+        return NULL;
+    }
+    for (int i = 0; i < height; i++) {
+        plane[i] = calloc(width, sizeof(int));
+        if (!plane[i]) {
+            for (int j = 0; j < i; j++) {
+                free(plane[j]);
+            }
+            free(plane);
+            return NULL;
+        }
+    }
+    return plane;
+}
 
-    char* cursor_image_text;
-    const int width = strtol(image_text, &cursor_image_text, 10);
-    const int height = strtol(cursor_image_text, &cursor_image_text, 10);
-    const int channels = strtol(cursor_image_text, &cursor_image_text, 10);
-    if (channels != 3) {
-        fprintf(stderr, "⚠️ Only RGB images are supported.\n");
+static void free_plane(int** plane, const int height) {
+    if (plane == NULL) {
+        return;
+    }
+    for (int i = 0; i < height; i++) {
+        free(plane[i]);
+    }
+    free(plane);
+}
+
+ImageData create_image_data(const int width, const int height) {
+    if (width < 1 || height < 1 || width > MAX_IMAGE_SIDE || height > MAX_IMAGE_SIDE) {
+        fprintf(stderr, "Unsupported image size %d x %d (each side must be between 1 and %d).\n",
+                width, height, MAX_IMAGE_SIDE);
         return NULL;
     }
 
     const ImageData image_data = malloc(sizeof(ImageData_s));
     if (!image_data) {
-        perror("❌ Error allocating memory for image data.");
+        perror("Error allocating memory for image data");
         return NULL;
     }
     image_data->width = width;
     image_data->height = height;
-    image_data->red_components = malloc(height * sizeof(int*));
-    image_data->green_components = malloc(height * sizeof(int*));
-    image_data->blue_components = malloc(height * sizeof(int*));
+    image_data->n = 0;
+    image_data->quantized_pixels = NULL;
+    image_data->red_components = allocate_plane(height, width);
+    image_data->green_components = allocate_plane(height, width);
+    image_data->blue_components = allocate_plane(height, width);
     if (!image_data->red_components || !image_data->green_components || !image_data->blue_components) {
-        perror("❌ Error allocating memory for rows (height) in the RGB components.");
-        free(image_data->red_components);
-        free(image_data->green_components);
-        free(image_data->blue_components);
-        free(image_data);
+        perror("Error allocating memory for the RGB components");
+        free_image_data(image_data);
         return NULL;
     }
-    for (int i = 0; i < height; i++) {
-        image_data->red_components[i] = malloc(width * sizeof(int));
-        image_data->green_components[i] = malloc(width * sizeof(int));
-        image_data->blue_components[i] = malloc(width * sizeof(int));
-        if (!image_data->red_components[i] || !image_data->green_components[i] || !image_data->blue_components[i]) {
-            perror("❌ Error allocating memory for columns (width) in the RGB components.");
-            for (int j = 0; j <= i; j++) {
-                free(image_data->red_components[j]);
-                free(image_data->green_components[j]);
-                free(image_data->blue_components[j]);
-            }
-            free(image_data->red_components);
-            free(image_data->green_components);
-            free(image_data->blue_components);
-            free(image_data);
-            return NULL;
-        }
-    }
+    return image_data;
+}
 
-    image_data->quantized_pixels = malloc(height * sizeof(int*));
-    if (!image_data->quantized_pixels) {
-        perror("❌ Error allocating memory for rows (height) in the quantized pixels.");
-        free(image_data->quantized_pixels);
+ImageData parse_image_text(const char* image_text) {
+    const char* cursor_image_text = image_text;
+    long width, height, channels;
+    if (!read_integer(&cursor_image_text, &width) || !read_integer(&cursor_image_text, &height) ||
+        !read_integer(&cursor_image_text, &channels)) {
+        fprintf(stderr, "Invalid image header: expected 'width height channels'.\n");
         return NULL;
     }
-    for (int i = 0; i < height; i++) {
-        image_data->quantized_pixels[i] = malloc(height * sizeof(int));
-        if (!image_data->quantized_pixels[i]) {
-            perror("❌ Error allocating memory for columns (width) in the RGB components.");
-            for (int j = 0; j <= i; j++) {
-                free(image_data->quantized_pixels[i]);
-            }
-            free(image_data->quantized_pixels);
-            return NULL;
-        }
+    if (channels != 3) {
+        fprintf(stderr, "Only RGB images are supported (3 channels, found %ld).\n", channels);
+        return NULL;
+    }
+    if (width < 1 || height < 1 || width > MAX_IMAGE_SIDE || height > MAX_IMAGE_SIDE) {
+        fprintf(stderr, "Unsupported image size %ld x %ld (each side must be between 1 and %d).\n",
+                width, height, MAX_IMAGE_SIDE);
+        return NULL;
     }
 
-    extract_color_components(height, width, image_data->red_components, &cursor_image_text);
-    extract_color_components(height, width, image_data->green_components, &cursor_image_text);
-    extract_color_components(height, width, image_data->blue_components, &cursor_image_text);
+    const ImageData image_data = create_image_data((int) width, (int) height);
+    if (!image_data) {
+        return NULL;
+    }
 
+    if (!extract_color_components(image_data->height, image_data->width, image_data->red_components, &cursor_image_text) ||
+        !extract_color_components(image_data->height, image_data->width, image_data->green_components, &cursor_image_text) ||
+        !extract_color_components(image_data->height, image_data->width, image_data->blue_components, &cursor_image_text)) {
+        fprintf(stderr, "Invalid image data: expected 3 x %ld x %ld integers between 0 and 255.\n", height, width);
+        free_image_data(image_data);
+        return NULL;
+    }
+
+    return image_data;
+}
+
+ImageData extract_image_text_data(const char* path) {
+    char* image_text = read_file(path);
+    if (!image_text) {
+        return NULL;
+    }
+
+    const ImageData image_data = parse_image_text(image_text);
+    free(image_text);
     return image_data;
 }
 
 
 int quantize_pixel(const int R, const int G, const int B, const int n) {
     if (n < 1 || n > 8) {
-        fprintf(stderr, "⚠️ The parameter 'n' must be between 1 and 8 inclusive.\n");
+        fprintf(stderr, "The parameter 'n' must be between 1 and 8 inclusive.\n");
         return -1;
     }
 
@@ -111,7 +155,19 @@ int quantize_pixel(const int R, const int G, const int B, const int n) {
     return R_quantized << 2 * n | G_quantized << n | B_quantized;
 }
 
-void quantize_image(const ImageData image, const int n) {
+bool quantize_image(const ImageData image, const int n) {
+    if (n < 1 || n > 8) {
+        fprintf(stderr, "The parameter 'n' must be between 1 and 8 inclusive.\n");
+        return false;
+    }
+    if (image->quantized_pixels == NULL) {
+        image->quantized_pixels = allocate_plane(image->height, image->width);
+        if (image->quantized_pixels == NULL) {
+            perror("Error allocating memory for the quantized pixels");
+            return false;
+        }
+    }
+
     image->n = n;
     for (int i=0; i < image->height; i++){
         for (int j=0; j < image->width; j++){
@@ -121,6 +177,7 @@ void quantize_image(const ImageData image, const int n) {
             image->quantized_pixels[i][j] = quantize_pixel(R, G, B, n);
         }
     }
+    return true;
 }
 
 void get_thresholds(const Color color, int thresholds[6]) {
@@ -205,25 +262,9 @@ void free_image_data(const ImageData image) {
         return;
     }
 
-    for (int i = 0; i < image->height; ++i) {
-        free(image->red_components[i]);
-    }
-    free(image->red_components);
-
-    for (int i = 0; i < image->height; ++i) {
-        free(image->green_components[i]);
-    }
-    free(image->green_components);
-
-    for (int i = 0; i < image->height; ++i) {
-        free(image->blue_components[i]);
-    }
-    free(image->blue_components);
-
-    for (int i = 0; i < image->height; ++i) {
-        free(image->quantized_pixels[i]);
-    }
-    free(image->quantized_pixels);
-
+    free_plane(image->red_components, image->height);
+    free_plane(image->green_components, image->height);
+    free_plane(image->blue_components, image->height);
+    free_plane(image->quantized_pixels, image->height);
     free(image);
 }

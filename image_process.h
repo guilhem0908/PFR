@@ -4,6 +4,7 @@
 
 #ifndef IMAGE_PROCESS_H
 #define IMAGE_PROCESS_H
+#include <stdbool.h>
 #include "cluster.h"
 
 typedef struct {
@@ -12,22 +13,34 @@ typedef struct {
     int** red_components;
     int** green_components;
     int** blue_components;
-    int n;
-    int** quantized_pixels;
+    int n;                  // bits kept per component by the last 'quantize_image' call, 0 before
+    int** quantized_pixels; // NULL until 'quantize_image' is called
 } ImageData_s;
 
 typedef ImageData_s* ImageData;
 
 
 /**
- * @brief Extracts pixel data for a single RGB component from image text.
+ * @brief Allocates an image of the given size with every RGB component set to 0.
  *
- * @param height Number of rows (image height).
- * @param width Number of columns (image width).
- * @param RGB_components Pointer to the 2D array to store the RGB component values.
- * @param cursor_image_text Pointer to the cursor pointing to the image text.
+ * @param width Number of columns (image width), between 1 and 4096.
+ * @param height Number of rows (image height), between 1 and 4096.
+ * @return A pointer to the allocated ImageData structure, or NULL on error.
+ *         The caller must release it with 'free_image_data'.
  */
-void extract_RGB_components(int height, int width, int** RGB_components, char* cursor_image_text);
+ImageData create_image_data(int width, int height);
+
+/**
+ * @brief Parses an image from its text form: a header "width height channels"
+ *        followed by the red, green and blue planes, each as height x width
+ *        integers between 0 and 255 separated by whitespace.
+ *
+ * @param image_text Null-terminated text of the image.
+ * @return A pointer to the allocated ImageData structure, or NULL when the
+ *         header is invalid, the image is not RGB, or samples are missing or
+ *         out of range.
+ */
+ImageData parse_image_text(const char* image_text);
 
 /**
  * @brief Extracts image data (dimensions and RGB pixels) from a image text file.
@@ -51,10 +64,13 @@ int quantize_pixel(int R, int G, int B, int n);
 /**
  * @brief Quantize the RGB values of all pixels in an image.
  *
+ * The quantized values are stored in `image->quantized_pixels`, allocated on first use.
+ *
  * @param image Pointer to the `ImageData` structure containing the image data.
- * @param n The number of quantization levels for each component (1 ≤ n ≤ 8).
+ * @param n Number of significant bits to keep for each component (1 ≤ n ≤ 8).
+ * @return true on success, false if `n` is out of range or memory cannot be allocated.
  */
-void quantize_image(ImageData image, int n);
+bool quantize_image(ImageData image, int n);
 
 /**
  * @brief Retrieves the threshold values for a specific color.
@@ -73,6 +89,11 @@ void get_thresholds(Color color, int thresholds[6]);
  */
 Clusters find_clusters(const ImageData image);
 
+/**
+ * @brief Releases an image and all its planes. Accepts NULL.
+ *
+ * @param image Pointer to the `ImageData` structure to free.
+ */
 void free_image_data(const ImageData image);
 
 #endif //IMAGE_PROCESS_H

@@ -9,24 +9,31 @@
 char* read_file(const char* path) {
     FILE* file = fopen(path, "rb");
     if (!file) {
-        perror("❌ Error opening file.");
+        perror("Error opening file");
         return NULL;
     }
 
-    fseek(file, 0, SEEK_END);
-    const long file_length = ftell(file);
+    long file_length = -1;
+    if (fseek(file, 0, SEEK_END) == 0) {
+        file_length = ftell(file);
+    }
+    if (file_length < 0) {
+        perror("Error measuring file");
+        fclose(file);
+        return NULL;
+    }
     rewind(file);
 
-    char* buffer = malloc((file_length + 1) * sizeof(char));
+    char* buffer = malloc((size_t) file_length + 1);
     if (!buffer) {
-        perror("❌ Error allocating memory for buffer.");
+        perror("Error allocating memory for buffer");
         fclose(file);
         return NULL;
     }
 
-    const size_t elements_read = fread(buffer, 1, file_length, file);
-    if (elements_read != file_length) {
-        perror("❌ Error reading file.");
+    const size_t elements_read = fread(buffer, 1, (size_t) file_length, file);
+    if (elements_read != (size_t) file_length) {
+        perror("Error reading file");
         free(buffer);
         fclose(file);
         return NULL;
@@ -41,7 +48,7 @@ char* read_file(const char* path) {
 bool write_to_file(const char* path, const char* text) {
     FILE* file = fopen(path, "w");
     if (!file) {
-        perror("❌ Error opening file.");
+        perror("Error opening file");
         return false;
     }
 
