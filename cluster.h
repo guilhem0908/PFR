@@ -5,6 +5,8 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
+#include <stdbool.h>
+
 typedef enum {
     ORANGE,
     BLUE,
@@ -98,8 +100,16 @@ void display_clusters(Clusters clusters);
  */
 void free_clusters(const Clusters clusters);
 
-int dfs(int** mask, int** visited, int height, int width, int x, int y);
-
-void update_binary_mask_with_largest_cluster(Cluster* cluster);
+/**
+ * @brief Keeps only the largest 4-connected component in the binary mask of
+ *        each cluster and updates its pixel count.
+ *
+ * The components are found with an iterative flood fill (explicit stack), so
+ * the depth of the search does not depend on the size of the component.
+ *
+ * @param clusters Pointer to the head of the clusters linked list.
+ * @return true on success, false if memory cannot be allocated.
+ */
+bool update_binary_mask_with_largest_cluster(Clusters clusters);
 
 #endif //CLUSTER_H

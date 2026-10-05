@@ -21,7 +21,11 @@ int main(int argc, char *argv[]) {
         free_image_data(image_data);
         return EXIT_FAILURE;
     }
-    update_binary_mask_with_largest_cluster(clusters);
+    if (!update_binary_mask_with_largest_cluster(clusters)) {
+        free_clusters(clusters);
+        free_image_data(image_data);
+        return EXIT_FAILURE;
+    }
     clusters = find_clusters_attributes(clusters);
     display_clusters(clusters);
 
