@@ -1,0 +1,23 @@
+# Build outputs
+/build/
+/PFR
+/PFR_asan
+*.exe
+*.o
+*.obj
+/result.txt
+
+# CMake
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# IDE
+.idea/
+.vscode/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
