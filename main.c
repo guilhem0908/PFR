@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     Clusters clusters = find_clusters(image_data);
     update_binary_mask_with_largest_cluster(clusters);
-    find_clusters_attributes(clusters);
+    clusters = find_clusters_attributes(clusters);
     display_clusters(clusters);
 
 

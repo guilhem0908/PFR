@@ -12,8 +12,7 @@ Clusters init_clusters(void) {
     return NULL;
 }
 
-Clusters add_cluster(const Clusters clusters, const int width, const int height, const int number_pixels,
-                    const int** binary_mask, const Color color) {
+Clusters add_cluster(const Clusters clusters, const int width, const int height, const int number_pixels, int** binary_mask, const Color color) {
     const Clusters new_clusters = malloc(sizeof(Cluster));
     if (!new_clusters) {
         perror("❌ Error allocating memory for clusters.");
@@ -34,10 +33,10 @@ Clusters add_cluster(const Clusters clusters, const int width, const int height,
         free(new_clusters);
         return NULL;
     }
-    for (int i = 0; i < height; ++i) {
+    for (int i = 0; i < height; i++) {
         new_clusters->binary_mask[i] = malloc(width * sizeof(int));
         if (new_clusters->binary_mask[i] == NULL) {
-            for (int j = 0; j < i; ++j) {
+            for (int j = 0; j < i; j++) {
                 free(new_clusters->binary_mask[j]);
             }
             free(new_clusters->binary_mask);
@@ -46,9 +45,10 @@ Clusters add_cluster(const Clusters clusters, const int width, const int height,
         }
     }
 
-    for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
             new_clusters->binary_mask[i][j] = binary_mask[i][j];
+
         }
     }
 
@@ -75,8 +75,10 @@ int number_clusters(const Clusters clusters) {
     return number_clusters;
 }
 
-void find_clusters_attributes(const Clusters clusters) {
+
+Clusters find_clusters_attributes( Clusters clusters) {
     Clusters current = clusters;
+    Clusters daron = NULL;
     while (current != NULL) {
         int min_x = current->height;
         int min_y = current->width;
@@ -93,20 +95,45 @@ void find_clusters_attributes(const Clusters clusters) {
                 if (current->binary_mask[i][j] == 1 && min_x > j){
                     min_x = j ;
                 }
-                if (current->binary_mask[i][j] == 1){
+                if (current->binary_mask[i][j] == 1 && max_x < j){
                     max_x = j;
                 }
             }
         }
         current->mid_x = min_x + (max_x - min_x) / 2;
         current->mid_y = min_y + (max_y - min_y) / 2;
+
         const int radius_x = (max_x - min_x) / 2;
         const int radius_y = (max_y - min_y) / 2;
         current->radius = (radius_x > radius_y) ? radius_x : radius_y;
 
-        current = current->next;
+		if (current->radius < 13) {
+                  if (daron == NULL) {
+                    Clusters temp = current->next;
+                    free(current);
+                    return find_clusters_attributes(temp);
+                  }
+                  daron->next = current->next;
+                  free_clusters(current);
+                  return find_clusters_attributes(clusters);
+		}
+       	else {
+             if ((current->color) == ORANGE) {
+        		current->mid_y *= 1 - (current->radius * 0.0013) ;
+        		}
+        	if ((current->color) == YELLOW) {
+          		current->mid_y *= 1 + (current->radius * 0.0015) ;
+       	 }
+				if ((current->color) == ORANGE || current->color == YELLOW) {
+        	 	  current->radius *= 1.12 ;
+        	}
+             daron = current;
+             current = current->next;
+        }
     }
+    return clusters;
 }
+
 
 void display_clusters(const Clusters clusters) {
     Clusters current = clusters;
@@ -152,11 +179,12 @@ int dfs(int** mask, int** visited, int height, int width, int x, int y) {
     return size;
 }
 
-void update_binary_mask_with_largest_cluster(Cluster* cluster) {
-    Clusters current = cluster;
+void update_binary_mask_with_largest_cluster(Clusters clusters) {
+    Clusters current = clusters;
+
     while (current != NULL) {
-        int height = cluster->height;
-        int width = cluster->width;
+        int height = current->height;
+        int width = current->width;
 
 
         int** visited = malloc(height * sizeof(int*));
@@ -171,8 +199,8 @@ void update_binary_mask_with_largest_cluster(Cluster* cluster) {
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                if (cluster->binary_mask[i][j] == 1 && !visited[i][j]) {
-                    int size = dfs(cluster->binary_mask, visited, height, width, i, j);
+                if (current->binary_mask[i][j] == 1 && !visited[i][j]) {
+                    int size = dfs(current->binary_mask, visited, height, width, i, j);
                     if (size > largest_size) {
                         largest_size = size;
                         largest_cluster_x = i;
@@ -190,20 +218,20 @@ void update_binary_mask_with_largest_cluster(Cluster* cluster) {
         }
 
 
-        dfs(cluster->binary_mask, visited, height, width, largest_cluster_x, largest_cluster_y);
+        dfs(current->binary_mask, visited, height, width, largest_cluster_x, largest_cluster_y);
 
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (visited[i][j]) {
-                    cluster->binary_mask[i][j] = 1;
+                    current->binary_mask[i][j] = 1;
                 } else {
-                    cluster->binary_mask[i][j] = 0;
+                    current->binary_mask[i][j] = 0;
                 }
             }
         }
 
-        cluster->number_pixels = largest_size;
+        current->number_pixels = largest_size;
 
 
         for (int i = 0; i < height; i++) {
