@@ -226,6 +226,10 @@ Other helpers, all run from the repository root:
 - `python3 scripts/image_to_text.py photo.jpg photo.txt` converts an image to
   the text format; with `--verify` it compares the 20 dumps with their JPEG
   files (they match exactly).
+- `make check-readme` runs the tests, then `scripts/evaluate.py --check` and
+  `scripts/check_readme.py`: the first compares the tables above with the
+  detector output, the second checks every figure quoted in the sentences (test
+  counts, timings, worst cases, size of the labelled set) against `results/`.
 - `python3 scripts/strip_exif.py --check` confirms that the photos carry no
   camera metadata.
 - `python3 scripts/benchmark.py` repeats the timing.

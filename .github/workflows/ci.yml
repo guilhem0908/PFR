@@ -18,6 +18,8 @@ jobs:
         run: make asan
       - name: Committed results match the detector output
         run: python3 scripts/evaluate.py --check
+      - name: Numbers quoted in the README match the results
+        run: python3 scripts/check_readme.py
       - name: Test photos carry no camera metadata
         run: python3 scripts/strip_exif.py --check
 

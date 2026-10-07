@@ -5,6 +5,7 @@
 #   make asan       same tests with AddressSanitizer and UBSan (Linux, macOS)
 #   make evaluate   compare the detections with the reference labels (needs Python 3)
 #   make figures    redraw the figures of docs/ (needs Python 3 and Pillow)
+#   make check-readme  run the tests, then check the numbers quoted in README.md (needs Python 3)
 #   make clean      remove everything that was built
 #
 # On Windows with MinGW, run mingw32-make from Git Bash or MSYS.
@@ -60,7 +61,11 @@ evaluate: $(TARGET)
 figures: $(TARGET)
 	$(PYTHON) scripts/make_figures.py
 
+check-readme: test
+	$(PYTHON) scripts/evaluate.py --check
+	$(PYTHON) scripts/check_readme.py
+
 clean:
 	rm -rf $(BUILD) $(TARGET)
 
-.PHONY: all test asan evaluate figures clean
+.PHONY: all test asan evaluate figures check-readme clean
