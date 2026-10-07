@@ -1,5 +1,5 @@
 {
-  "description": "Colour-ball detector in pure C11: RGB thresholds, largest connected component, centre and radius, no vision library. Vision part of the UPSSITECH Projet Fil Rouge (2024-25), with tests and an evaluation on 20 photos.",
+  "description": "Colour-ball detector in pure C11, no vision library: RGB thresholds, largest connected component, centre and radius. Part of the UPSSITECH Projet Fil Rouge.",
   "homepage": "",
   "topics": [
     "c",
