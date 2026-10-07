@@ -13,7 +13,7 @@ box.
 It is the image-processing part of the first half of the *Projet Fil Rouge*
 (PFR 1), a project of the first year of the engineering cycle at UPSSITECH, the
 engineering school of the University of Toulouse. **Guilhem Carmouze** and
-**Alec Bossard** wrote it between 10 and 25 January 2025. In October 2026 the
+a classmate wrote it between 10 and 25 January 2025. In October 2026 the
 repository was cleaned up: the tuned version used at the end of the project was
 brought in, the defects that remained were fixed, and tests, an evaluation
 against reference labels and the figures of this page were added. The second
@@ -266,7 +266,7 @@ docs/                  figures written by scripts/make_figures.py
 
 ## Who wrote what
 
-The January 2025 history holds 24 commits, 14 by Alec Bossard and 10 by
+The January 2025 history holds 24 commits, 14 by the classmate and 10 by
 Guilhem Carmouze. From `git blame` on the last commit of that period
 (`bb6e29f`) and the commit messages:
 
@@ -276,9 +276,9 @@ Guilhem Carmouze. From `git blame` on the last commit of that period
 | Text image parser, image structure | Guilhem Carmouze |
 | Colour thresholds and mask construction (`get_thresholds`, `find_clusters`) | Guilhem Carmouze |
 | Cluster list, bounding box, centre and radius, display, memory release | Guilhem Carmouze |
-| RGB quantisation (`quantize_pixel`, `quantize_image`) | Alec Bossard |
-| Largest-component filter (depth-first search, `update_binary_mask_with_largest_cluster`) | Alec Bossard |
-| Writing of `result.txt` in `main.c` | Alec Bossard |
+| RGB quantisation (`quantize_pixel`, `quantize_image`) | The classmate |
+| Largest-component filter (depth-first search, `update_binary_mask_with_largest_cluster`) | The classmate |
+| Writing of `result.txt` in `main.c` | The classmate |
 | Wider thresholds, 13 px limit, empirical corrections, first bug fixes | team integration version of 29 January 2025, imported as one commit (it has no per-line history) |
 | October 2026: remaining fixes, iterative flood fill, tests, CI, labels, evaluation, figures, this page | Guilhem Carmouze, with an AI coding assistant (see the commit trailers) |
 
@@ -328,12 +328,11 @@ two pixels.
 ## Part 2: the real robot
 
 The second half of the Projet Fil Rouge (PFR 2, spring 2025) was a real mobile
-robot built by a team of six: Alexandre Perrin, Abdelbasset Houdass, Wassim
-Wali, Alec Bossard, Fairouz Ijerdaoun and Guilhem Carmouze. It combines Arduino
-motor control, a Raspberry Pi camera, RPLiDAR mapping with ICP, voice commands,
-ball tracking and a web HMI. The code, the report, the slides and five demo
-videos are in the team repository:
-[github.com/waliwassim/PFR2](https://github.com/waliwassim/PFR2).
+robot built by a team of six: Guilhem Carmouze and five teammates. It combines
+Arduino motor control, a Raspberry Pi camera, RPLiDAR mapping with ICP, voice
+commands, ball tracking and a web HMI. The code, the report, the slides and five demo
+videos are in the team repository
+[PFR2](https://github.com/waliwassim/PFR2).
 
 Guilhem's part there was the web HMI: a single-page application that drives the
 robot through the Web Bluetooth API (a page reload would break the BLE link),
@@ -347,7 +346,7 @@ of this repository: its ball tracking is a separate Python program.
 
 ## Credits
 
-- Alec Bossard, co-author of the January 2025 code.
+- A classmate, co-author of the January 2025 code (see [Who wrote what](#who-wrote-what)).
 - The integration version of 29 January 2025, from which the tuned thresholds
   and corrections come.
 - Figures are drawn with [Pillow](https://python-pillow.org/); the CI uses
@@ -360,7 +359,7 @@ bibliothèque de vision : lecture d'une image 300 x 300 au format texte,
 seuillage RGB, plus grande composante connexe par couleur, puis centre et rayon
 à partir de la boîte englobante. C'est la partie traitement d'image du Projet
 Fil Rouge 1 (janvier 2025, première année du cycle ingénieur à l'UPSSITECH),
-réalisée par Guilhem Carmouze et Alec Bossard. Le dépôt a été repris en
+réalisée par Guilhem Carmouze et un camarade de classe. Le dépôt a été repris en
 octobre 2026 : version réglée de fin de projet, corrections de bogues, tests,
 intégration continue et évaluation sur les 20 photos de test à partir
 d'annotations de référence établies en examinant les photos. Ces 20 photos
@@ -369,4 +368,4 @@ sur 28, aucune fausse détection) ne mesure pas la généralisation, et le table
 de sensibilité à la luminosité montre que le détecteur dépend fortement de
 l'exposition. La seconde partie du projet, un robot mobile réel réalisé à six,
 se trouve dans le dépôt d'équipe
-[waliwassim/PFR2](https://github.com/waliwassim/PFR2).
+[PFR2](https://github.com/waliwassim/PFR2).
