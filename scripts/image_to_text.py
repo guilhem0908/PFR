@@ -55,7 +55,7 @@ def verify():
             print(f"{name}: header or sample count does not match the {width} x {height} photo")
             damaged += 1
             continue
-        difference = max(abs(int(token) - value) for token, value in zip(tokens[3:], expected))
+        difference = max(abs(int(token) - value) for token, value in zip(tokens[3:], expected, strict=True))
         worst = max(worst, difference)
         if difference > VERIFY_TOLERANCE:
             print(f"{name}: samples differ from the photo by up to {difference}")

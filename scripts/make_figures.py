@@ -39,7 +39,7 @@ MASK_BRIGHT = {"orange": (255, 138, 36), "blue": (64, 160, 255), "yellow": (255,
 MASK_DIM = {"orange": (110, 52, 8), "blue": (16, 58, 112), "yellow": (104, 90, 14)}
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def font(size):
     return ImageFont.load_default(size=size)
 
@@ -210,7 +210,8 @@ def pipeline_figure(path, binary, names):
     draw = ImageDraw.Draw(figure, "RGBA")
 
     draw.text((margin, 14), "From a text image to a ball position", font=font(27), fill=TEXT)
-    titles = ("1. Input: 300 x 300 RGB image", "2. Colour thresholds, largest component", "3. Output: centre and radius")
+    titles = ("1. Input: 300 x 300 RGB image", "2. Colour thresholds, largest component",
+              "3. Output: centre and radius")
     for column, title in enumerate(titles):
         draw.text((margin + column * (size + gap), 58), title, font=font(18), fill=MUTED)
 
